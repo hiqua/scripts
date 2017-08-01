@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+set -u
+#bash to use $RANDOM 
+fraction=6
+
+if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
+  echo "Usage: $0 FILE [FRACTION]"
+  echo "Replaces one FRACTION-th of the lines by Anki cloze tags, ready for import"
+  exit 1
+fi
+
+if [ "$#" -eq 2 ]; then
+  fraction="$2"
+fi
+
+
+threshold=$((32768 / fraction))
+count=1
+while read -r line; do
+  new_r=$RANDOM
+  if [ $new_r -le $threshold ] && [ ! -z "$@" ]; then
+    echo "{{c""$count""::""$line""}}"
+    count=$((count+1))
+  else
+    echo "$line"
+  fi
+done < "$1"

@@ -1,0 +1,53 @@
+#!/bin/sh
+set -e
+set -u
+echo "Archmail"
+
+ARCMAIL="archivemail --include-flagged"
+MAILROOT="$HOME/.mail"
+ARCDIR="$MAILROOT/archives"
+
+## POLY
+ARCPOLY="$ARCMAIL --output-dir=$ARCDIR/poly"
+POLY=$(cat <<EOF
+$MAILROOT/poly/Inbox/
+$MAILROOT/poly/Sent/
+EOF
+)
+$ARCPOLY "$POLY"
+
+## CAYL
+ARCCAYL="$ARCMAIL --output-dir=$ARCDIR/cayl"
+CAYL=$(cat <<EOF
+$MAILROOT/cayl/Inbox/
+$MAILROOT/cayl/Sent/
+EOF
+)
+$ARCCAYL "$CAYL"
+
+## YAQH
+ARCYAQH="$ARCMAIL --output-dir=$ARCDIR/yaqh"
+YAQH=$(cat <<EOF
+$MAILROOT/yaqh/Inbox/
+$MAILROOT/yaqh/Sent/
+EOF
+)
+$ARCYAQH "$YAQH"
+
+## ETHZ
+ARCETHZ="$ARCMAIL --output-dir=$ARCDIR/ethz"
+ETHZ=$(cat <<EOF
+$MAILROOT/ethz/Inbox/
+$MAILROOT/ethz/Sent*
+$MAILROOT/ethz/moeb/
+EOF
+)
+$ARCETHZ "$ETHZ"
+
+## SYS
+ARCSYS="$ARCMAIL --output-dir=$ARCDIR/sys"
+SYS=$(cat <<EOF
+/var/mail/*
+EOF
+)
+$ARCSYS -d 30 "$SYS"

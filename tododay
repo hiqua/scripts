@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+set -u
+
+# shellcheck source=/dev/null
+. "$HOME"/.zsh/10_globals.zsh
+
+TDL="$TODO_DIR"/tododay_list.txt
+TDD="$TODO_DIR"/tododay.txt
+
+# check if file has been accessed today
+if [ ! "$(find "$TODO_DIR" -daystart -name 'tododay.txt' -atime 0)" ]; then
+  LEFT=$(wc -l "$TDD")
+  TODO=$(wc -l "$TDL")
+  DONE=$(("$TODO" - "$LEFT"))
+  cp "$TDL" "$TDD"
+  echo "$(date --iso-8601) $DONE" >> "$HOME"/tmp/tododay_log
+fi

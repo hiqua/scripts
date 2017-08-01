@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+set -u
+#bash to use $RANDOM 
+fraction=4
+prefix="#"
+
+if [ "$#" -ne 1 ] && [ "$#" -ne 3 ]; then
+  echo "Usage: $0 FILE [FRACTION=$fraction] [PREFIX=$prefix]"
+  echo "To remove one FRACTION-th of the non empty lines, apart from the line beginning with PREFIX"
+  exit 1
+fi
+
+if [ "$#" -eq 2 ]; then
+  fraction="$2"
+fi
+
+threshold=$((32768 / fraction))
+echo_rand(){
+  new_r=$RANDOM
+  if [ $new_r -le $threshold ] && [ ! -z "$@" ] && (echo "$@" | grep -v "^[[:space:]]*#" > /dev/null); then
+    echo "# DELETED LINE"
+  else
+    echo "$@"
+  fi
+}
+
+while read -r line; do
+  echo_rand "$line"
+done < "$1"

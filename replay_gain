@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+import os
+import subprocess
+import pathlib
+
+gain_bin = {'flac': ['metaflac', '--add-replay-gain'],
+            'mp3': ['replaygain', '-f'],
+            'ogg': ['vorbisgain', '-a', '-f'],
+            }
+
+def call_ignore_exception(command):
+    try:
+        print("Running " + " ".join(command))
+        subprocess.check_call(command)
+    except subprocess.CalledProcessError:
+        pass
+
+
+def get_files_pth_s(pth, ext):
+    pth = pathlib.PosixPath(pth)
+    pth_s = list(pth.glob('*.' + ext))
+    return sorted([str(pt) for pt in pth_s])
+
+
+def replay_gain(folder_pth):
+    for ext in gain_bin.keys():
+        pth_s = get_files_pth_s(folder_pth, ext)
+        if pth_s:
+            command = gain_bin[ext] + pth_s
+            call_ignore_exception(command)
+
+if __name__ == '__main__':
+    for a, b, _ in os.walk('.'):
+        for d in b:
+            folder_pth = a + "/" + d
+            replay_gain(folder_pth)
+    print("Done")

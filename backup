@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+set -u
+sudo -i -u hiq cp ~/Documents/keepass/keepass_bdd.kdbx ~/backups/keepass/keepass_bdd_"$(date +%F_%s)".kdbx

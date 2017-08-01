@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+set -u
+# shellcheck source=/dev/null
+. "$HOME"/.zsh/10_globals.zsh
+# shellcheck source=/dev/null
+. "$HOME"/.zsh/11_locals.zsh
+OPENVPN_PID_FILE="/var/run/openvpn/openvpn.pid"
+
+
+finish(){
+  echo finishing
+  "$HOME"/code/scripts/kill_bt
+}
+
+trap finish 1 2 3 15
+
+if pgrep openvpn; then
+  echo "VPN already running?"
+else
+  cd "$VPN_CONFIG_DIR" && sudo openvpn --writepid "$OPENVPN_PID_FILE" --config cstorm_linux-balancer_udp.ovpn
+  finish
+fi

@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+set -u
+# shellcheck source=/dev/null
+. "$HOME"/.zsh/11_locals.zsh
+OLD_TODO="$TODO_DIR/main/.todo.txt.old"
+TODO="$TODO_DIR/main/todo.txt"
+
+if [ -f "$OLD_TODO" ]; then
+  echo "The following items have been on the list for a long time:"
+  grep -F -x -f "$TODO" "$OLD_TODO"
+fi
+cp "$TODO" "$OLD_TODO"

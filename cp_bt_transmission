@@ -1,0 +1,75 @@
+#!/usr/bin/python3
+from pathlib import PosixPath
+import subprocess
+import os
+
+home = os.getenv('HOME')
+
+seed_folder = PosixPath(home + '/Downloads/a_torrents/seeding')
+torr_folder = PosixPath(home + '/.config/transmission/torrents')
+finished_folder = PosixPath(home + '/Downloads/a_torrents/a_finished')
+suffix_witness = '.copied_torrent'
+
+
+def is_witness(p):
+    return p.suffix == suffix_witness
+
+
+def witness_exists(p):
+    return PosixPath(str(p) + suffix_witness).exists()
+
+
+def create_witness(p):
+    subprocess.call(['touch', str(p) + suffix_witness])
+
+
+def clean_witness():
+    print("Cleaning witness files")
+    for f in seed_folder.glob('*' + suffix_witness):
+        assert is_witness(f)
+        torr = f.parent / PosixPath('.'.join(f.name.split('.')[:-1]))
+        if not torr.exists():
+            subprocess.call(['gvfs-trash', str(f)])
+    print("Done")
+
+
+def remove_unless_seeded():
+    print("Removing files that are not seeded anymore")
+    seeded_torrents = set([t.name for t in seed_folder.glob(
+        '*') if not is_witness(t)])
+
+    torrent_files = set(['.'.join(tf.name.split('.')[:-2]) for tf in
+        torr_folder.glob('*.torrent')])
+
+    to_del = seeded_torrents.difference(torrent_files)
+
+    for file_to_del in to_del:
+        fn = seed_folder / PosixPath(file_to_del)
+        print("Removing {}".format(fn))
+        # subprocess.call(['echo', str(seed_folder / fn)])
+        subprocess.call(['gvfs-trash', str(seed_folder / fn)])
+    print("Done")
+
+
+def cp_seeded():
+    print("Copying files that have not been copied yet")
+    for f in seed_folder.glob('*'):
+        if not witness_exists(f) and not is_witness(f):
+            print("Copying {}".format(f.name))
+            subprocess.call(['cp', '-r', str(f), str(finished_folder)])
+            create_witness(f)
+    print("Done")
+
+
+if __name__ == '__main__':
+    seed_folder.mkdir(parents=True, exist_ok=True)
+    torr_folder.mkdir(parents=True, exist_ok=True)
+    finished_folder.mkdir(parents=True, exist_ok=True)
+
+    assert seed_folder.exists()
+    assert torr_folder.exists()
+    assert finished_folder.exists()
+
+    cp_seeded()
+    remove_unless_seeded()
+    clean_witness()
