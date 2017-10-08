@@ -1,12 +1,14 @@
 #!/bin/sh
 set -u
 
+command -v kill_bt
+
 timelapse=10
 main(){
   echo "kill_bt_start"
   while sleep $timelapse; do
   if ! pgrep openvpn > /dev/null; then
-    "$HOME"/code/scripts/kill_bt
+    kill_bt
   fi
   done
   echo "kill_bt_end"

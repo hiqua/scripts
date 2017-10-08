@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-from pathlib import PosixPath
-import subprocess
 import os
+import subprocess
+from pathlib import PosixPath
 
 home = os.getenv('HOME')
 
@@ -39,7 +39,7 @@ def remove_unless_seeded():
         '*') if not is_witness(t)])
 
     torrent_files = set(['.'.join(tf.name.split('.')[:-2]) for tf in
-        torr_folder.glob('*.torrent')])
+                         torr_folder.glob('*.torrent')])
 
     to_del = seeded_torrents.difference(torrent_files)
 

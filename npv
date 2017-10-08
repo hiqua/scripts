@@ -7,10 +7,11 @@ set -u
 . "$HOME"/.zsh/11_locals.zsh
 OPENVPN_PID_FILE="/var/run/openvpn/openvpn.pid"
 
+command -v kill_bt > /dev/null
 
 finish(){
   echo finishing
-  "$HOME"/code/scripts/kill_bt
+  kill_bt
 }
 
 trap finish 1 2 3 15

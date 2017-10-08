@@ -1,4 +1,7 @@
 #!/bin/sh
+# XXX: find another way to enumerate folders without using word splitting
+# right now, no " surrounding variables to splt with character \n
+# rewrite in python to avoid these shenanigans
 set -e
 set -u
 echo "Archmail"
@@ -14,7 +17,7 @@ $MAILROOT/poly/Inbox/
 $MAILROOT/poly/Sent/
 EOF
 )
-$ARCPOLY "$POLY"
+$ARCPOLY $POLY
 
 ## CAYL
 ARCCAYL="$ARCMAIL --output-dir=$ARCDIR/cayl"
@@ -23,7 +26,7 @@ $MAILROOT/cayl/Inbox/
 $MAILROOT/cayl/Sent/
 EOF
 )
-$ARCCAYL "$CAYL"
+$ARCCAYL $CAYL
 
 ## YAQH
 ARCYAQH="$ARCMAIL --output-dir=$ARCDIR/yaqh"
@@ -32,7 +35,7 @@ $MAILROOT/yaqh/Inbox/
 $MAILROOT/yaqh/Sent/
 EOF
 )
-$ARCYAQH "$YAQH"
+$ARCYAQH $YAQH
 
 ## ETHZ
 ARCETHZ="$ARCMAIL --output-dir=$ARCDIR/ethz"
@@ -42,7 +45,7 @@ $MAILROOT/ethz/Sent*
 $MAILROOT/ethz/moeb/
 EOF
 )
-$ARCETHZ "$ETHZ"
+$ARCETHZ $ETHZ
 
 ## SYS
 ARCSYS="$ARCMAIL --output-dir=$ARCDIR/sys"
@@ -50,4 +53,4 @@ SYS=$(cat <<EOF
 /var/mail/*
 EOF
 )
-$ARCSYS -d 30 "$SYS"
+$ARCSYS -d 30 $SYS
