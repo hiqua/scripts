@@ -1,0 +1,26 @@
+#!/bin/sh -eu
+# uuid="f1cb4e28-22da-4125-8e4e-87740cd41455"
+
+
+mount(){
+  if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 UUID"
+    exit 1
+  fi
+
+  uuid="$1"
+  dev=$(lsblk -r -f | grep "$uuid"  | cut -d' ' -f1)
+
+  out=$(udisksctl unlock -b /dev/"$dev")
+  dm=$(echo "$out" | cut -d' ' -f4 | cut -d'.' -f1)
+
+  udisksctl mount -b "$dm"
+}
+
+mount "$@"
+
+# to unmount:
+# device="$(lsblk -r -f | grep f90f991d-3f71-4cb4-b092-c7d0b0b2bd1e | cut -f1 -d' ')"
+# udisksctl unmount -b /dev/dm-4
+# sleep 2
+# udisksctl lock -b /dev/$device
