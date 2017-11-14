@@ -1,34 +1,16 @@
 #!/usr/bin/expect
-set res [ exec lsblk -r -f | grep f90f991d-3f71-4cb4-b092-c7d0b0b2bd1e ]
-set dev [lindex $res 0]
-
-spawn udisksctl unlock -b /dev/$dev
-  expect {
-    "Passphrase:" {
-      set pass $env(MUSIC_PASS)\n
-      send $pass
-    }
-  }
-
-sleep 2
-
-expect "output" {
-  "Unlocked /dev/.*" {
+spawn encrypt_mount $env(MUSIC_UUID)
+expect {
+  "Passphrase:" {
+    set pass $env(MUSIC_PASS)\n
+    send $pass
   }
 }
-
-set dm [string trim $expect_out(buffer)]
-set dm [lindex $dm 3]
-set dm [string trimright $dm .]
-
-sleep 2
-spawn udisksctl mount -b $dm
-
 interact
 
 
 # to unmount:
-# device="$(lsblk -r -f | grep f90f991d-3f71-4cb4-b092-c7d0b0b2bd1e | cut -f1 -d' ')"
+# device="$(lsblk -r -f | grep $env(MUSIC_UUID) | cut -f1 -d' ')"
 # udisksctl unmount -b /dev/dm-4
 # sleep 2
 # udisksctl lock -b /dev/$device

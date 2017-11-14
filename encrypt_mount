@@ -1,5 +1,4 @@
 #!/bin/sh -eu
-# uuid="f1cb4e28-22da-4125-8e4e-87740cd41455"
 
 
 mount(){

@@ -11,6 +11,7 @@ command -v i3-msg > /dev/null
 DISP="$1"
 I3CONFIG_FILE=${XDG_CONFIG_HOME:-$HOME/.config}/i3/config
 
+xrandr
 xrandr --output "$DISP" --auto --right-of LVDS1 ; xrandr --output LVDS1 --auto
 sed -i 's/set $mon2 .*/set $mon2 '"$DISP"'/' "$I3CONFIG_FILE"
 

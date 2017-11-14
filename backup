@@ -1,4 +1,9 @@
 #!/bin/sh
 set -e
 set -u
-sudo -i -u hiq cp ~/Documents/keepass/keepass_bdd.kdbx ~/backups/keepass/keepass_bdd_"$(date +%F_%s)".kdbx
+# shellcheck source=/dev/null
+. $HOME/.zsh/11_locals.zsh
+
+DATETAG="$(date +%F_%s)"
+sudo -i -u hiq cp ~/Documents/keepass/keepass_bdd.kdbx ~/backups/keepass/keepass_bdd_"$DATETAG".kdbx
+sudo -i -u hiq cp -r "$TODO_DIR" ~/backups/TODO/TODO_"$DATETAG"
