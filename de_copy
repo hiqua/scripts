@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e 
+set -u
+if [ "$#" -ne 1 ]; then
+  exit 1
+fi
+
+command -v i3-msg > /dev/null
+
+DISP="$1"
+I3CONFIG_FILE=${XDG_CONFIG_HOME:-$HOME/.config}/i3/config
+
+xrandr > /dev/null
+xrandr --output "$DISP" --auto --same-as LVDS1 ; xrandr --output "$DISP" --auto
+
+# in case of race issue
+# sleep 1
+size="$(xrandr  | grep "$DISP" | cut -f3 -d' ' | cut -f1 -d'+')"
+xrandr --output LVDS1 --primary --scale-from "$size"
+
+# shellcheck disable=SC2016
+sed -i 's/set $mon2 .*/set $mon2 '"$DISP"'/' "$I3CONFIG_FILE"
+
+i3-msg reload
+
