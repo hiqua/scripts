@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+set -u
+
+while true; do
+  clear
+  t ls "$@"
+  inotifywait -qq -e create,modify "$TODO_DIR"
+done

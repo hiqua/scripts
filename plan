@@ -3,8 +3,6 @@ set -e
 set -u
 cd "$HOME"/mobile/0_planning || exit
 
-# unused functions to have shellcheck
-
 # create panes
 tmux split-window -h 
 tmux split-window 
@@ -16,11 +14,11 @@ tmux select-pane -U
 watch_plan(){
   mkdir -p history
   while true; do
-    tiro < activities.txt > plan.txt
+    ./tiro < activities.txt > plan.txt
     clear
     cat plan.txt
     cp plan.txt history/plan_"$(date --iso-8601=seconds)".txt
-    inotifywait -q -e create,modify .
+    inotifywait -q -e create,modify . > /dev/null
   done
 }
 
@@ -28,33 +26,15 @@ watch_plan(){
 tmux respawn-pane -t top-right -k '
   mkdir -p history
   while true; do
-    tiro < activities.txt > plan.txt
+    ./tiro < activities.txt > plan.txt
     clear
     cat plan.txt
     cp plan.txt history/plan_"$(date --iso-8601=seconds)".txt
-    inotifywait -q -e create,modify .
+    inotifywait -q -e create,modify . > /dev/null
   done
 '
 
-list_tasks(){
-  while true; do
-    o="$(t ls @work)"
-    clear
-    printf "%s" "$o"
-    inotifywait -qq -e create,modify "$TODO_DIR"/main
-  done
-}
 
-# t ls is slow, compute it before clearing
-# shellcheck disable=SC2016
-tmux respawn-pane -t bottom-right -k '
-  while true; do
-    o="$(t ls @work)"
-    clear
-    printf "%s" "$o"
-    inotifywait -qq -e create,modify "$TODO_DIR"/main
-  done
-'
-
+tmux respawn-pane -t bottom-right -k 'todo_watch @work'
 vi activities.txt 
 tmux kill-pane
