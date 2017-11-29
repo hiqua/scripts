@@ -4,7 +4,8 @@
 
 
 while true; do
+  sync "$TODO_DIR"/*
   clear
   t ls "$@"
-  inotifywait -qq -e create,modify /home/hiq/mobile/TODO > /dev/null
+  inotifywait -qq -e create,modify "$TODO_DIR"/* > /dev/null
 done
