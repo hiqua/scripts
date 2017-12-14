@@ -4,6 +4,7 @@
 
 
 while true; do
+  sleep 0.2
   sync "$TODO_DIR"/*
   clear
   t ls "$@"
