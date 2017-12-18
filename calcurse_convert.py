@@ -2,6 +2,7 @@ import re
 import dateutil.parser
 import datetime
 
+
 def next_day_from_str(date):
     return dateutil.parser.parse(date) + datetime.timedelta(days=1)
 
@@ -10,7 +11,7 @@ def convert_ics(infile, outfile):
     with open(infile) as fs:
         content = fs.readlines()
 
-    p = re.compile('DTSTART:[0-9]{8}$')
+    p = re.compile('^DTSTART:[0-9]{8}$')
     new_content = []
     for line in content:
         if p.match(line):
