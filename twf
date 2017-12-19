@@ -1,0 +1,2 @@
+#!/bin/sh
+var="wf" todo-txt -d $TODO_DIR/config "$@"

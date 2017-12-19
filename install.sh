@@ -20,7 +20,7 @@ read -r _
 echo "ok"
 
 for f in *; do
-  if [ ! "$f" = "$(basename "$0")" ]; then
+  if [ ! "$f" = "$(basename "$0")" ] && [ -x "$f" ] ; then
     ln -s -i "$(pwd)""/$f" "$DIRECTORY"
   fi
 done

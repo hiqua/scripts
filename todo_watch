@@ -1,12 +1,14 @@
 #!/bin/sh
 # shellcheck disable=SC1090
 . "$HOME"/.zsh/11_locals.zsh
+tcmd="$1"
+shift
 
 
 while true; do
   sleep 0.2
   sync "$TODO_DIR"/*
   clear
-  t ls "$@"
+  $tcmd ls "$@"
   inotifywait -qq -e create,modify "$TODO_DIR"/* > /dev/null
 done

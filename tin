@@ -1,0 +1,2 @@
+#!/bin/sh
+var="in" todo-txt -d $TODO_DIR/config "$@"
