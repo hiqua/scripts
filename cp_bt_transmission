@@ -35,18 +35,19 @@ def clean_witness():
 
 def remove_unless_seeded():
     print("Removing files that are not seeded anymore")
-    seeded_torrents = set([t.name for t in seed_folder.glob(
-        '*') if not is_witness(t)])
+    seeded_torrents = set(
+        (t.name for t in seed_folder.glob('*') if not is_witness(t)))
 
-    torrent_files = set(['.'.join(tf.name.split('.')[:-2]) for tf in
-                         torr_folder.glob('*.torrent')])
+    torrent_files = set((
+        '.'.join(tf.name.split('.')[:-2])
+        for tf in torr_folder.glob('*.torrent')
+    ))
 
     to_del = seeded_torrents.difference(torrent_files)
 
     for file_to_del in to_del:
         fn = seed_folder / PosixPath(file_to_del)
         print("Removing {}".format(fn))
-        # subprocess.call(['echo', str(seed_folder / fn)])
         subprocess.call(['gvfs-trash', str(seed_folder / fn)])
     print("Done")
 
