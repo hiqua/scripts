@@ -36,5 +36,5 @@ tmux respawn-pane -t top-right -k '
 
 
 tmux respawn-pane -t bottom-right -k 'todo_watch t @work'
-vi activities.txt 
+vi activities.txt
 tmux kill-pane
