@@ -2,5 +2,5 @@
 set -e
 set -u
 imapfilter
-mbsync -c "${XDG_CONFIG_HOME:-$HOME/.config/}"mbsync/mbsyncrc -a
+mbsync -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a
 notmuch new

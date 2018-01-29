@@ -17,11 +17,6 @@ def convert_ics(infile, outfile):
         if p.match(line):
             day = line.split(':')[1]
             new_content.append('DTSTART;VALUE=DATE:' + day)
-
-            # not needed?
-            # next_day = next_day_from_str(day)
-            # new_line = 'DTEND;VALUE=DATE:' + next_day.strftime("%Y%m%d") + '\n'
-            # new_content.append(new_line)
         else:
             new_content.append(line)
 

@@ -9,12 +9,13 @@ TODO="$TODO_DIR/main/todo.txt"
 TODOCLEAN="$TODO_DIR/main/.todo.txt.cur"
 
 sed 's/^ *([a-Z]) //' "$TODO" > "$TODOCLEAN"
+
 if [ -f "$OLD_TODO" ]; then
-  echo "The following items have been on the list for a long time:"
-  if ! grep -F -x -f "$TODOCLEAN" "$OLD_TODO"; then
-    echo No items
+  tmp="$(mktemp)"
+  if grep -F -x -f "$TODOCLEAN" "$OLD_TODO" > "$tmp" ; then
+    echo "The following items have been on the list for a long time:"
+    cat "$tmp"
   fi
-else
-  echo Checking for the first time
 fi
+
 mv "$TODOCLEAN" "$OLD_TODO"
