@@ -46,7 +46,11 @@ def main(tgt=Path('music/from_mpd')):
 
     root = music_root(home)
 
-    shutil.copy(str(root / rel_path), str(mobile_dir / tgt))
+    abs_path_tgt = mobile_dir / tgt
+    abs_path_tgt.mkdir(exist_ok=True)
+
+    shutil.copy(str(root / rel_path), str(abs_path_tgt))
+
 
 if __name__ == '__main__':
     main()
