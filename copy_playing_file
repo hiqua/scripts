@@ -1,57 +1,55 @@
-#!/usr/bin/env python3
-import os
-import re
-from pathlib import Path
-import shutil
+#!/usr/bin/env julia
+#= 2018-02-05 First script in Julia! =#
+using PyCall
+@pyimport mpd
 
-import mpd
+function get_client(addr, port, password=nothing)
+  client = mpd.MPDClient(use_unicode=true)
+  client[:connect](addr, port)
 
+  if password != nothing
+    client[:password](password)
+  end
 
-def get_client(addr, port, password=None):
-    client = mpd.MPDClient(use_unicode=True)
-    client.connect(addr, port)
+  return client
+end
 
-    if password is not None:
-        client.password(password)
+function playing_file_rel(client)
+  rel_path = client[:currentsong]()["file"]
+  return rel_path
+end
 
-    return client
-
-
-def playing_file_rel(client):
-    rel_path = client.currentsong()['file']
-    return rel_path
-
-
-def music_root(home):
-    with open(home + '/.config/mpd/mpd.conf') as fs:
-        mpd_conf = fs.readlines()
-
-    for line in mpd_conf:
-        if re.match('^music_directory', line):
-            return Path(re.search('".+"', line).group()[1:-1])
-    else:
-        raise KeyError
+function music_root(conf="/.config/mpd/mpd.conf")
+  fn =  homedir() * conf
+  for ln in eachline(fn)
+    if ismatch(r"music_directory", ln)
+      return expanduser(split(ln,'"')[2])
+    end
+  end
+  throw(KeyError())
+end
 
 
-def main(tgt=Path('music/from_mpd')):
-    home = os.getenv("HOME")
-    mobile_dir = os.getenv("MOBILE_DIR")
-    host = os.getenv("MPD_HOST").split("@")
-    port = os.getenv("MPD_PORT")
-    password = host[0] if len(host) == 2 else None
-    addr = host[-1]
+function main(tgt = "music/from_mpd")
+  mobile_dir = ENV["MOBILE_DIR"]
+  port = ENV["MPD_PORT"]
+  host = split(ENV["MPD_HOST"],'@')
+  password = length(host) == 2 ? host[1] : nothing
+  addr = host[end]
 
-    client = get_client(addr, port, password)
+  abs_path_tgt = joinpath(mobile_dir, tgt)
+  mkpath(abs_path_tgt)
 
-    rel_path = playing_file_rel(client)
+  root = music_root()
 
-    root = music_root(home)
+  client = get_client(addr, port, password)
+  from = joinpath(root, playing_file_rel(client))
 
-    abs_path_tgt = mobile_dir / tgt
-    abs_path_tgt.mkdir(exist_ok=True)
+  tgt = joinpath(abs_path_tgt, basename(from))
 
-    shutil.copy(str(root / rel_path), str(abs_path_tgt))
+  try
+    cp(from, tgt)
+  end
+end
 
-
-if __name__ == '__main__':
-    main()
+main()
