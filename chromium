@@ -1,2 +1,2 @@
 #!/bin/sh
-chromium --incognito
+/usr/bin/chromium --incognito

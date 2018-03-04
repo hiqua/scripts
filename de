@@ -1,7 +1,8 @@
 #!/bin/sh
-set -e 
+set -e
 set -u
-if [ "$#" -ne 1 ]; then
+
+if [ "$#" -ne 2 ]; then
   exit 1
 fi
 
@@ -9,10 +10,25 @@ fi
 command -v i3-msg > /dev/null
 
 DISP="$1"
+POS="$2"
+
+if [ "$POS" != "right" ] && [ "$POS" != "left" ]; then
+  exit 2
+fi
+
 I3CONFIG_FILE=${XDG_CONFIG_HOME:-$HOME/.config}/i3/config
 
 xrandr
-xrandr --output "$DISP" --auto --right-of LVDS1 ; xrandr --output LVDS1 --auto
-sed -i 's/set $mon2 .*/set $mon2 '"$DISP"'/' "$I3CONFIG_FILE"
+xrandr --output "$DISP" --primary
+i3-msg reload
+xrandr --output "$DISP" --auto --"$POS"-of LVDS1 ; xrandr --output LVDS1 --auto
+
+# shellcheck disable=2016
+sed -i --follow-symlinks 's/set $mon2 .*/set $mon2 '"LVDS1"'/' "$I3CONFIG_FILE"
+# shellcheck disable=2016
+sed -i --follow-symlinks 's/set $mon1 .*/set $mon1 '"$DISP"'/' "$I3CONFIG_FILE"
+
+
+xrandr --output "$DISP" --primary
 
 i3-msg reload
