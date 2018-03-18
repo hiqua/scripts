@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 set -u
+
+# for notmuch
+. "$HOME"/.zsh/11_locals.zsh
+
 imapfilter
 mbsync -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a
 notmuch new
