@@ -1,12 +1,11 @@
 #!/bin/sh
 # XXX: find another way to enumerate folders without using word splitting
-# right now, no " surrounding variables to splt with character \n
+# right now, no " surrounding variables to split with character \n
 # rewrite in python to avoid these shenanigans
 set -e
 set -u
-echo "Archmail"
 
-ARCMAIL="archivemail --include-flagged"
+ARCMAIL="archivemail -q --include-flagged"
 MAILROOT="$HOME/.mail"
 ARCDIR="$MAILROOT/archives"
 
@@ -17,7 +16,7 @@ $MAILROOT/poly/Inbox/
 $MAILROOT/poly/Sent/
 EOF
 )
-$ARCPOLY $POLY
+$ARCPOLY -d 365 $POLY
 
 ## CAYL
 ARCCAYL="$ARCMAIL --output-dir=$ARCDIR/cayl"
@@ -26,7 +25,7 @@ $MAILROOT/cayl/Inbox/
 $MAILROOT/cayl/Sent/
 EOF
 )
-$ARCCAYL $CAYL
+$ARCCAYL -d 365 $CAYL
 
 ## YAQH
 ARCYAQH="$ARCMAIL --output-dir=$ARCDIR/yaqh"
@@ -35,7 +34,7 @@ $MAILROOT/yaqh/Inbox/
 $MAILROOT/yaqh/Sent/
 EOF
 )
-$ARCYAQH $YAQH
+$ARCYAQH -d 365 $YAQH
 
 ## ETHZ
 ARCETHZ="$ARCMAIL --output-dir=$ARCDIR/ethz"
@@ -53,4 +52,4 @@ SYS=$(cat <<EOF
 /var/mail/*
 EOF
 )
-$ARCSYS -d 30 $SYS
+$ARCSYS -d 21 $SYS
