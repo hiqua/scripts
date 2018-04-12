@@ -2,33 +2,45 @@
 set -e
 set -u
 
-if [ "$#" -ne 2 ]; then
-  exit 1
+if [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
+  exit 2
 fi
 
 
 command -v i3-msg > /dev/null
 
-DISP="$1"
-POS="$2"
+MAIN_DISP="$1"
+DISP="$2"
+POS="$3"
+
+if [ "$4" = "y" ] ; then
+  PRIMARY="--primary"
+else
+  PRIMARY=""
+fi
 
 if [ "$POS" != "right" ] && [ "$POS" != "left" ]; then
-  exit 2
+  exit 3
 fi
 
 I3CONFIG_FILE=${XDG_CONFIG_HOME:-$HOME/.config}/i3/config
 
 xrandr
-xrandr --output "$DISP" --primary
+xrandr --output "$DISP" $PRIMARY
 i3-msg reload
-xrandr --output "$DISP" --auto --"$POS"-of LVDS1 ; xrandr --output LVDS1 --auto
+xrandr --output "$DISP" --auto --"$POS"-of "$MAIN_DISP" ; xrandr --output "$MAIN_DISP"
 
-# shellcheck disable=2016
-sed -i --follow-symlinks 's/set $mon2 .*/set $mon2 '"LVDS1"'/' "$I3CONFIG_FILE"
-# shellcheck disable=2016
-sed -i --follow-symlinks 's/set $mon1 .*/set $mon1 '"$DISP"'/' "$I3CONFIG_FILE"
+if [ -z "$PRIMARY" ]; then
+  # shellcheck disable=2016
+  sed -i --follow-symlinks 's/set $mon2 .*/set $mon2 '"$DISP"'/' "$I3CONFIG_FILE"
+  # shellcheck disable=2016
+  sed -i --follow-symlinks 's/set $mon1 .*/set $mon1 '"$MAIN_DISP"'/' "$I3CONFIG_FILE"
+else
+  # shellcheck disable=2016
+  sed -i --follow-symlinks 's/set $mon2 .*/set $mon2 '"$MAIN_DISP"'/' "$I3CONFIG_FILE"
+  # shellcheck disable=2016
+  sed -i --follow-symlinks 's/set $mon1 .*/set $mon1 '"$DISP"'/' "$I3CONFIG_FILE"
+fi
 
-
-xrandr --output "$DISP" --primary
 
 i3-msg reload
