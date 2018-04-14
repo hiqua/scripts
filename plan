@@ -1,43 +1,17 @@
 #!/bin/sh
 set -e
 set -u
-cd "$HOME"/mobile/0_planning || exit
+cd "$HOME"/mobile/0_planning || exit 2
 
 # create panes
-tmux split-window -h 
-tmux split-window 
-tmux select-pane -L 
-tmux split-window 
+tmux split-window -h
+tmux split-window
+tmux select-pane -L
+tmux split-window
 tmux resize-pane -D 10
 tmux select-pane -U
 
-watch_plan(){
-  mkdir -p history
-  while true; do
-    ./tiro < activities.txt > plan.txt
-    clear
-    cat plan.txt
-    subfolder="$(date +"%Y-%m-w%V")"
-    mkdir -p history/"$subfolder"
-    cp plan.txt history/"$subfolder"/plan_"$(date --iso-8601=seconds)".txt
-    inotifywait -q -e create,modify . > /dev/null
-  done
-}
-
-# shellcheck disable=SC2016
-tmux respawn-pane -t top-right -k '
-  mkdir -p history
-  while true; do
-    ./tiro < activities.txt > plan.txt
-    clear
-    cat plan.txt
-    subfolder="$(date +"%Y-%m-w%V")"
-    mkdir -p history/"$subfolder"
-    cp plan.txt history/"$subfolder"/plan_"$(date --iso-8601=seconds)".txt
-    inotifywait -q -e create,modify . > /dev/null
-  done
-'
-
+tmux respawn-pane -t top-right -k watch_plan
 
 tmux respawn-pane -t bottom-right -k 'todo_watch t @work'
 vi activities.txt
