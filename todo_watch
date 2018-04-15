@@ -9,7 +9,7 @@ while true; do
   # still got the bug with 0.2 under heavy load...
   sleep 0.4
   # probably useless, if fs is ok
-  # sync "$TODO_DIR"/*
+  sync "$TODO_DIR"/*
   clear
   $tcmd ls "$@"
   inotifywait -qq -e create,modify "$TODO_DIR"/* > /dev/null

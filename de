@@ -27,7 +27,6 @@ I3CONFIG_FILE=${XDG_CONFIG_HOME:-$HOME/.config}/i3/config
 
 xrandr
 xrandr --output "$DISP" $PRIMARY
-i3-msg reload
 xrandr --output "$DISP" --auto --"$POS"-of "$MAIN_DISP" ; xrandr --output "$MAIN_DISP"
 
 if [ -z "$PRIMARY" ]; then
@@ -43,4 +42,5 @@ else
 fi
 
 
-i3-msg reload
+
+i3-msg restart
