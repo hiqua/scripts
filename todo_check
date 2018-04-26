@@ -14,7 +14,7 @@ if [ -f "$OLD_TODO" ]; then
   tmp="$(mktemp)"
   if grep -F -x -f "$TODOCLEAN" "$OLD_TODO" > "$tmp" ; then
     echo "The following items have been on the list for a long time:"
-    cat "$tmp"
+    grep -E -v '@work|@out' "$tmp"
   fi
 fi
 
