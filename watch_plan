@@ -3,16 +3,17 @@
 set -u
 
 watch_plan(){
-    ./tiro < activities.txt > plan.txt
-    clear
-    cat plan.txt
-    subfolder=history/"$(date +"%Y-%m-w%V")"/"$(date +"%Y-%m-%d")"
-    mkdir -p "$subfolder"
-    date="$(date --iso-8601=seconds)"
-    cp plan.txt "$subfolder"/plan_"$date".txt
-    cp activities.txt "$subfolder"/activities"$date".txt
-    # only activities.txt needed?
-    inotifywait -q -e modify activities.txt > /dev/null
+  # refactor
+  printf 'activities.txt' | entr -d sh -c '
+  ./tiro < activities.txt > plan.txt
+  clear
+  cat plan.txt
+  subfolder=history/"$(date +"%Y-%m-w%V")"/"$(date +"%Y-%m-%d")"
+  mkdir -p "$subfolder"
+  date="$(date --iso-8601=seconds)"
+  cp plan.txt "$subfolder"/plan_"$date".txt
+  cp activities.txt "$subfolder"/activities"$date".txt
+  '
 }
 
 
