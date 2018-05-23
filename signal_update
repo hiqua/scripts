@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+set -u
+
+mkdir -p "$MOBILE_DIR"/apk/signal
+cd "$MOBILE_DIR"/apk/signal
+
+if [ -f latest.json ]; then
+  mv latest.json .old.json
+  old_sha="$(jq -r '.sha256sum' .old.json)"
+else
+  old_sha="not_a_sha"
+fi
+
+curl -o latest.json https://updates.signal.org/android/latest.json
+new_sha="$(jq -r '.sha256sum' latest.json)"
+
+if [ "$old_sha" !=  "$new_sha" ]; then
+  . "$HOME"/.zsh/11_locals.zsh
+  mkdir -p old_apks
+  mv ./*.apk old_apks
+  url="$(jq -r '.url' latest.json)"
+  wget "$url"
+  touch "$MOBILE_DIR"/00_NEW_SIGNAL
+fi
