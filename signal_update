@@ -2,6 +2,9 @@
 set -e
 set -u
 
+# shellcheck disable=SC1090
+. "$HOME"/.zsh/11_locals.zsh
+
 mkdir -p "$MOBILE_DIR"/apk/signal
 cd "$MOBILE_DIR"/apk/signal
 
@@ -16,7 +19,6 @@ curl -o latest.json https://updates.signal.org/android/latest.json
 new_sha="$(jq -r '.sha256sum' latest.json)"
 
 if [ "$old_sha" !=  "$new_sha" ]; then
-  . "$HOME"/.zsh/11_locals.zsh
   mkdir -p old_apks
   mv ./*.apk old_apks
   url="$(jq -r '.url' latest.json)"
