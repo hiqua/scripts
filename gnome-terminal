@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+set -u
+
+if [ -f "$HOME"/.zsh/12_gnome_terminal_profile.zsh ]; then
+  . "$HOME"/.zsh/12_gnome_terminal_profile.zsh
+fi
+
+if [ "${GT_PROFILE:+x}" = "x" ]; then
+  /usr/bin/gnome-terminal --window-with-profile="$GT_PROFILE"
+else
+  /usr/bin/gnome-terminal
+fi
