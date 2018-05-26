@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+cd "$HOME"/bin
+mkdir "$*"_
+cd "$*"_
+pipenv install "$*"
