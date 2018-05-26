@@ -1,4 +1,5 @@
 #!/bin/sh
+# install a python package in a pipenv environment
 set -e
 cd "$HOME"/bin
 mkdir "$*"_
