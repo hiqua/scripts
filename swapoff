@@ -4,6 +4,7 @@ set -u
 set -x
 while true; do
   show="$(solaar show)"
+  date >>~/tmp/so.log
   printf "%s" "$show" | grep K780 && solaar config k780 fn-swap false >> ~/tmp/so.log 2>&1
   printf "%s" "$show" | grep K750 && solaar config k750 fn-swap false >> ~/tmp/so.log 2>&1
   sleep 180
