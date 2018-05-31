@@ -15,7 +15,7 @@ else
   old_sha="not_a_sha"
 fi
 
-curl -o latest.json https://updates.signal.org/android/latest.json
+curl -s -o latest.json https://updates.signal.org/android/latest.json
 new_sha="$(jq -r '.sha256sum' latest.json)"
 
 if [ "$old_sha" !=  "$new_sha" ]; then
