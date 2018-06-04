@@ -1,18 +1,30 @@
 #!/bin/sh
-# http://wcm1.web.rice.edu/mutt-tips.html
 set -e
 set -u
+LOCK_FILE="$HOME"/.mutt/aliases_lock
+
+ignore(){
+  printf "%s" "$*" | grep 'noreply\|no-reply\|announce\|list' > /dev/null
+}
 
 MESSAGE="$(cat)"
 
-# NEWALIAS=$(echo "${MESSAGE}" | grep ^"From: " | sed s/[\,\"\']//g | awk '{$1=""; if (NF == 3) {print "alias" $0;} else if (NF == 2) {print "alias" $0 $0;} else if (NF > 3) {print "alias", tolower($(NF-1))"-"tolower($2) $0;}}')
 
 if addr=$(echo "$MESSAGE" | grep '^From: ' | sed "s/[\,\"\']//g" | grep -o '<.*>') ; then
+  if ignore "$addr"; then
+    echo "$MESSAGE"
+    exit 0;
+  fi
+
   cleanaddr=$(echo "$addr" | sed 's/[<>]*//g')
   NEWALIAS="alias $cleanaddr $addr"
 
   if ! grep -Fxq "$NEWALIAS" "$HOME"/.mutt/aliases.txt ; then
-    echo "$NEWALIAS" >> "$HOME"/.mutt/aliases.txt
+    if [ ! -e "$LOCK_FILE" ]; then
+      touch "$LOCK_FILE"
+      echo "$NEWALIAS" >> "$HOME"/.mutt/aliases.txt
+      rm "$LOCK_FILE"
+    fi
   fi
 fi
 
