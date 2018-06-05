@@ -39,3 +39,9 @@ for f in *; do
     safe_link "$(pwd)/$f" "$DIRECTORY/$f"
   fi
 done
+
+for f in "$DIRECTORY"/* ; do
+  if [ -h "$f" ] && [ ! -f "$(readlink -f "$f")" ]; then
+    trash "$f"
+  fi
+done
