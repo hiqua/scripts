@@ -16,7 +16,7 @@ $MAILROOT/poly/Inbox/
 $MAILROOT/poly/Sent/
 EOF
 )
-$ARCPOLY -d 365 $POLY
+$ARCPOLY -d 1 $POLY
 
 ## CAYL
 ARCCAYL="$ARCMAIL --output-dir=$ARCDIR/cayl"
