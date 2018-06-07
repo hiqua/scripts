@@ -1,7 +1,23 @@
 #!/bin/sh
 # install a python package in a pipenv environment
 set -e
-cd "$HOME"/bin
-mkdir "$*"_
-cd "$*"_
-pipenv install "$*"
+set -u
+
+echo "Enter the name of the command which should be available:"
+read -r COMMAND
+
+dir="$HOME"/bin/"$*"_
+mkdir "$dir"
+cd "$dir"
+
+pipenv install --skip-lock "$*"
+
+cat > "$HOME"/bin/"$COMMAND" <<-EOF
+#!/bin/sh
+set -e
+set -u
+cd "$dir"
+pipenv run "$COMMAND"
+EOF
+
+chmod u+x "$HOME"/bin/"$COMMAND"
