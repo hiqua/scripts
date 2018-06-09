@@ -18,10 +18,10 @@ fi
 curl -s -o latest.json https://updates.signal.org/android/latest.json
 new_sha="$(jq -r '.sha256sum' latest.json)"
 
-if [ "$old_sha" !=  "$new_sha" ]; then
+if [ "$old_sha" != "$new_sha" ]; then
+  touch "$MOBILE_DIR"/00_NEW_SIGNAL
   mkdir -p old_apks
-  mv ./*.apk old_apks
+  find . -maxdepth 1 -iname '*.apk' -exec mv -b '{}' old_apks \;
   url="$(jq -r '.url' latest.json)"
   wget "$url"
-  touch "$MOBILE_DIR"/00_NEW_SIGNAL
 fi
