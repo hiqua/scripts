@@ -1,2 +1,2 @@
 #!/bin/sh
-var="sd" todo-txt -d $TODO_DIR/config "$@"
+var="sd" todo-txt -d $TODO_GLOBAL/config "$@"

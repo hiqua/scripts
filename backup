@@ -6,5 +6,5 @@ set -u
 
 DATETAG="$(date +%F_%s)"
 sudo -i -u hiq cp "$MOBILE_DIR"/keepass/keepass_bdd.kdbx ~/backups/keepass/keepass_bdd_"$DATETAG".kdbx
-sudo -i -u hiq cp -r "$TODO_DIR" ~/backups/TODO/TODO_"$DATETAG"
+sudo -i -u hiq cp -r "$TODO_GLOBAL" ~/backups/TODO/TODO_"$DATETAG"
 sudo -i -u hiq cp -r ~/.calcurse ~/backups/calcurse/calcurse_"$DATETAG"

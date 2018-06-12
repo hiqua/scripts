@@ -1,2 +1,2 @@
 #!/bin/sh
-var="pr" todo-txt -d $TODO_DIR/config -t "$@"
+var="pr" todo-txt -d $TODO_GLOBAL/config -t "$@"

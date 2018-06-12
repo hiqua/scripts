@@ -4,9 +4,9 @@ set -u
 # shellcheck source=/dev/null
 . "$HOME"/.zsh/11_locals.zsh
 
-OLD_TODO="$TODO_DIR/main/.todo.txt.old"
-TODO="$TODO_DIR/main/todo.txt"
-TODOCLEAN="$TODO_DIR/main/.todo.txt.cur"
+OLD_TODO="$TODO_GLOBAL/main/.todo.txt.old"
+TODO="$TODO_GLOBAL/main/todo.txt"
+TODOCLEAN="$TODO_GLOBAL/main/.todo.txt.cur"
 
 sed 's/^ *([a-Z]) //' "$TODO" > "$TODOCLEAN"
 
