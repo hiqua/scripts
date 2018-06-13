@@ -12,5 +12,5 @@ while true; do
   sync "$TODO_GLOBAL"/*
   clear
   $tcmd ls "$@"
-  inotifywait -qq -e create,modify "$TODO_DIR"/* > /dev/null
+  inotifywait -qq -e create,modify "$TODO_GLOBAL"/* > /dev/null
 done
