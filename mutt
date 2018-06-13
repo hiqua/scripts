@@ -13,4 +13,4 @@ printf "%s\n" "$(date --iso-8601=minutes)" >> "$file"
 
 # we could directly iterate over the line with awk and do "sleep 1", but
 # we prefer to close the file ASAP instead.
-wc -l "$file" | awk '{system("sleep " $1)}' && "$path" "$@"
+wc -l "$file" | awk '{print "Waiting " $1 " seconds..." ; system("sleep " $1)}' && "$path" "$@"
