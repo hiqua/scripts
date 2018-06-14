@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+set -u
+mkdir -p trash
+
+for f in *; do
+  if [ -f "$f" ]; then
+    o="$(cat $f)"
+    for ff in *; do
+      if [ -f "$ff" ] && [ "$f" != "$ff" ]; then
+        oo="$(cat $ff)"
+        if case "$oo" in
+          *$o*) true;;
+          *) false;;
+        esac; then
+        echo $f is subfile of $ff
+        mv "$f" trash
+        break
+      fi
+    fi
+  done
+fi
+done
