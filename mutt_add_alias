@@ -4,28 +4,28 @@ set -u
 LOCK_FILE="$HOME"/.mutt/aliases_lock
 
 ignore(){
-  printf "%s" "$*" | grep 'noreply\|no-reply\|announce\|list' > /dev/null
+  printf "%s" "$*" | grep 'noreply\|no-reply\|announce\|list\|docs.google.com' > /dev/null
 }
 
 MESSAGE="$(cat)"
 
-
-if addr=$(echo "$MESSAGE" | grep '^From: ' | sed "s/[\,\"\']//g" | grep -o '<.*>') ; then
+# grep -m 1 to stop after first match
+if addr=$(printf "%s" "$MESSAGE" | grep -m 1 '^From: ' | sed "s/[\,\"\']//g" | grep -o '<.*>') ; then
   if ignore "$addr"; then
-    echo "$MESSAGE"
+    printf "%s" "$MESSAGE"
     exit 0;
   fi
 
-  cleanaddr=$(echo "$addr" | sed 's/[<>]*//g')
+  cleanaddr=$(printf "%s" "$addr" | sed 's/[<>]*//g')
   NEWALIAS="alias $cleanaddr $addr"
 
   if ! grep -Fxq "$NEWALIAS" "$HOME"/.mutt/aliases.txt ; then
     if [ ! -e "$LOCK_FILE" ]; then
       touch "$LOCK_FILE"
-      echo "$NEWALIAS" >> "$HOME"/.mutt/aliases.txt
+      printf "%s" "$NEWALIAS" >> "$HOME"/.mutt/aliases.txt
       rm "$LOCK_FILE"
     fi
   fi
 fi
 
-echo "$MESSAGE"
+printf "%s" "$MESSAGE"
