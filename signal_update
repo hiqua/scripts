@@ -23,5 +23,5 @@ if [ "$old_sha" != "$new_sha" ]; then
   mkdir -p old_apks
   find . -maxdepth 1 -iname '*.apk' -exec mv -b '{}' old_apks \;
   url="$(jq -r '.url' latest.json)"
-  wget "$url"
+  wget -q "$url"
 fi
