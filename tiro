@@ -1,0 +1,96 @@
+#!/usr/bin/awk -f
+BEGIN{
+    # default values
+    "date +'%H'" | getline h
+    "date +'%M'" | getline m
+    l=10
+}
+
+
+function q(a,b){
+  return (a - (a%b)) / b
+}
+
+function shift_time(dh,dm){
+  m = m + dm; 
+  h=(h+dh+ q(m,60)) % 24;
+  m=m%60
+}
+
+function round_up_time(unit){
+  if(m % unit != 0)
+    shift_time(0, unit - m % unit)
+}
+
+function add_break(){
+  shift_time(0,l)
+  printf("%s ------------------\n",get_time_stamp())
+}
+
+function get_time_stamp(){
+  return sprintf("-> %02i:%02i",h ,m)
+}
+
+function ts_a(a){
+  shift_time($1,$2)
+  for(i=3;i<NF;i++)
+    a = a FS $i
+  a = a FS $NF
+  printf("%s%s\n", get_time_stamp(),a)
+}
+
+function shift_fields(){
+  for(i=1;i<NF;i++)
+    $i=$(i+1)
+  # $NF=""
+  NF--
+  }
+
+$1 == "#" || $0 == "" {
+  NR = NR - 1
+  next
+}
+
+skip_next == 1 { skip_next=0; next }
+
+
+$1 == "*" {
+  skip_next = 1
+  shift_fields()
+}
+
+NR == 1 {
+  if($1 != "_"){
+    h=$1
+    m=$2
+  }
+
+  if($3 != "_")
+    l = $3
+
+  round_up_time(5)
+  printf("-- %02i:%02i\n",h ,m)
+}
+
+# XXX: correct logic with [nobreak]
+NR > 2 && ($1 != 0 || $2 != 0) && l != 0 && $3 != "[nobreak]" { add_break() }
+
+/\[nobreak\]/ {
+  for(i=3;i<NF;i++)
+    $i=$(i+1)
+  NF--
+}
+
+NR > 1 { ts_a("") }
+
+
+
+$NF ~ /@/ { ctxt[$NF] += 60 * $1 + $2;}
+
+END {
+  print "------"
+  for(c in ctxt){ 
+    min = ctxt[c]
+    printf("%d:%02d spent on %s\n",q(min,60),min%60,c)
+  }
+}
