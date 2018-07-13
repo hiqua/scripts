@@ -2,10 +2,16 @@
 set -e
 set -u
 
+LOG="$HOME"/tmp/checkmail
+date >> "$LOG"
 
-imapfilter
-mbsync -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a
+imapfilter >> "$LOG"
+mbsync -q -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a >> "$LOG"
 
-# for notmuch
+# For notmuch
 . "$HOME"/.zsh/11_locals.zsh
-notmuch new 2>&1 | grep -v "Note: Ignoring non-mail file:"
+
+# cat to avoid non-zero return value from grep
+notmuch new -q 2>&1 >/dev/null |\
+  grep -v "Note: Ignoring non-mail file:" |\
+  cat >> "$LOG"
