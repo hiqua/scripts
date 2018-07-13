@@ -13,7 +13,7 @@ safe_k(){
 
 kill_bt(){
   # pkill "$(which deluge)"
-  safe_k "$(pidof "$(which qbittorrent)")" &
+  # safe_k "$(pidof "$(which qbittorrent)")" &
   safe_k "$(pidof "$(which transmission-gtk)")" &
   # pkill -9 /usr/bin/deluge
   wait
