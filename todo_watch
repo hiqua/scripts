@@ -6,11 +6,12 @@ shift
 
 
 while true; do
-  # still got the bug with 0.2 under heavy load...
-  sleep 0.4
   # probably useless, if fs is ok
   sync "$TODO_GLOBAL"/*
+  # still got the bug with 0.4 under heavy load with only one sync
+  sleep 0.4
   clear
+  sync "$TODO_GLOBAL"/*
   $tcmd ls "$@"
   inotifywait -qq -e create,modify "$TODO_GLOBAL"/* > /dev/null
 done

@@ -13,10 +13,7 @@ tmux select-pane -U
 
 tmux respawn-pane -t top-right -k watch_plan
 
-if [ "$(hostname)" = "hiq-work-deb" ]; then
-  tmux respawn-pane -t bottom-right -k 'todo_watch t @work -@out'
-else
-  tmux respawn-pane -t bottom-right -k 'todo_watch t -@work -@out'
-fi
+tmux respawn-pane -t bottom-right -k "todo_watch t ${PLANTODO_FLAG:-}"
+
 vi activities.txt
 tmux kill-pane
