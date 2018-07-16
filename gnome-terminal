@@ -7,7 +7,7 @@ if [ -f "$HOME"/.zsh/12_gnome_terminal_profile.zsh ]; then
 fi
 
 if [ "${GT_PROFILE:+x}" = "x" ]; then
-  /usr/bin/gnome-terminal --window-with-profile="$GT_PROFILE"
+  /usr/bin/gnome-terminal --window-with-profile="$GT_PROFILE" "$@"
 else
-  /usr/bin/gnome-terminal
+  /usr/bin/gnome-terminal "$@"
 fi
