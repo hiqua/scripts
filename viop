@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+set -u
+
+show_usage(){
+  echo "Usage: $0 Contract.sol"
+}
+
+solc="solc --asm"
+
+if [ "$#" -ne 1 ]; then
+  show_usage
+  exit 1
+fi
+
+f1="$(mktemp)"
+printf "/* %s: without --optimize */\\n" "$1" > "$f1"
+
+f2="$(mktemp)"
+printf "/* %s: with --optimize */\\n" "$1" > "$f2"
+
+solc --asm "$1" >> "$f1"
+solc --asm --optimize "$1" >> "$f2"
+vimdiff "$f1" "$f2"

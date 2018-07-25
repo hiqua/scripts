@@ -1,6 +1,4 @@
 #!/bin/sh
-# shellcheck disable=SC1090
-. "$HOME"/.zsh/15_path.zsh
 if [ ! -f .solhint.json ]; then
   cp "$HOME"/.config/solhint/solhint.json .solhint.json
   SOLHINTJSONSET="true"
@@ -8,6 +6,6 @@ fi
 
 "$NPM_GLOBAL_BIN"/solhint "$@"
 
-if [ ! -z "$SOLHINTJSONSET" ]; then
+if [ ! -z "${SOLHINTJSONSET+x}" ]; then
   rm .solhint.json
 fi

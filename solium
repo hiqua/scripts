@@ -1,3 +1,2 @@
 #!/bin/sh
-. "$HOME"/.zsh/15_path.zsh
 $NPM_GLOBAL_BIN/solium -c "$HOME"/.config/solium/soliumrc.json "$@"

@@ -3,8 +3,15 @@ set -e
 set -u
 
 show_usage(){
-  echo "Usage: $0 Contract_A.sol Contract_B.sol"
+  echo "Usage: $0 [opt] Contract_A.sol Contract_B.sol"
 }
+
+solc="solc --asm"
+
+if [ "$#" -eq 3 ]; then
+  solc="$solc"" --optimize"
+  shift
+fi
 
 if [ "$#" -ne 2 ]; then
   show_usage
@@ -12,11 +19,11 @@ if [ "$#" -ne 2 ]; then
 fi
 
 f1="$(mktemp)"
-printf "/* %s */\n" "$1" > "$f1"
+printf "/* %s */\\n" "$1" > "$f1"
 
 f2="$(mktemp)"
-printf "/* %s */\n" "$2" > "$f2"
+printf "/* %s */\\n" "$2" > "$f2"
 
-solc --optimize --asm "$1" >> "$f1"
-solc --optimize --asm "$2" >> "$f2"
+$solc "$1" >> "$f1"
+$solc "$2" >> "$f2"
 vimdiff "$f1" "$f2"
