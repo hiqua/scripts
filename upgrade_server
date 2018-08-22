@@ -2,7 +2,9 @@
 if [ "$#" -ne 1 ]; then
   return 1
 fi
-ssh "$1" sudo apt-get update &&\
-ssh "$1" sudo apt-get upgrade &&\
+
+printf 'Upgrading %s...\n' "$1"
+ssh "$1" "sudo apt-get update" &&\
+ssh "$1" "sudo apt-get upgrade" &&\
 ssh "$1" "sudo needrestart -v -k -r a" &&\
 ssh "$1" "if [ -f /var/run/reboot-required ]; then sudo shutdown -r now ; fi"
