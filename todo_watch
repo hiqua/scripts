@@ -12,6 +12,7 @@ while true; do
   sleep 0.4
   clear
   sync "$TODO_GLOBAL"/*
-  $tcmd ls "$@"
+  # don't show done tasks
+  $tcmd ls "$@" | grep -v '[[:digit:]]* x'
   inotifywait -qq -e create,modify "$TODO_GLOBAL"/* > /dev/null
 done
