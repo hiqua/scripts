@@ -1,0 +1,4 @@
+#!/bin/sh
+# tiro what happened
+# run this from the history folder with an activity argument, e.g. work
+find . -maxdepth 2 -iname 'plan*' -exec cat '{}' \; | grep "spent on @$1"
