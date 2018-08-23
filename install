@@ -33,6 +33,7 @@ cd "$(dirname "$0")"
 echo "Install in $DIRECTORY:"
 echo "Continue?"
 read -r _
+mkdir -p "$DIRECTORY"
 
 for f in *; do
   if [ ! "$f" = "$(basename "$0")" ] && [ -x "$f" ] ; then
