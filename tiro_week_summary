@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+set -u
+echo "Using files:"
+find . -maxdepth 2 -type f -iname 'plan*' | sort
+find . -maxdepth 2 -type f -iname 'plan*' -print0 | xargs -0 -r grep -h 'spent on' | tr ':' ' ' | awk '
+{ time[$NF] += $1 * 60 + $2}
+
+END {
+for(activity in time){
+  hours = int(time[activity] / 60)
+  minutes = time[activity] - hours * 60
+  if(minutes < 10)
+    zero = "0"
+    print "Time spent on " activity ": " hours "h" zero minutes
+  }
+}
+'
+
