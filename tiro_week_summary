@@ -12,7 +12,9 @@ for(activity in time){
   minutes = time[activity] - hours * 60
   if(minutes < 10)
     zero = "0"
-    print "Time spent on " activity ": " hours "h" zero minutes
+  else
+    zero = ""
+  print "Time spent on " activity ": " hours "h" zero minutes
   }
 }
 '
