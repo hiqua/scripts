@@ -13,3 +13,4 @@ EOF
 
 
 i3lock -c "$color"
+xset dpms force off
