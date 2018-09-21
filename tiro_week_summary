@@ -3,8 +3,20 @@ set -e
 set -u
 echo "Using files:"
 find . -maxdepth 2 -type f -iname 'plan*' | sort
-find . -maxdepth 2 -type f -iname 'plan*' -print0 | xargs -0 -r grep -h 'spent on' | tr ':' ' ' | awk '
+find . -maxdepth 2 -type f -iname 'plan*' -print0 | xargs -0 -r grep -h 'spent on' | tr ':' ' ' | gawk '
 { time[$NF] += $1 * 60 + $2}
+
+function q(a,b){
+  return (a - (a%b)) / b
+}
+
+function comp_hours(m){
+  return q(m, 60)
+}
+
+function comp_minutes(m){
+  return m - q(m,60) * 60
+}
 
 END {
 for(activity in time){
@@ -14,8 +26,12 @@ for(activity in time){
     zero = "0"
   else
     zero = ""
-  print "Time spent on " activity ": " hours "h" zero minutes
+    print "Time spent on " activity ": " hours "h" zero minutes
+    if(activity == "@work"){
+      hours_left = ENVIRON["WORK_HOURS"] - comp_hours(time[activity])
+      if(hours_left > 0)
+        print "Time left on " activity ": " hours_left "h" comp_minutes(ENVIRON["WORK_HOURS"]*60 - time[activity])
+      }
+    }
   }
-}
-'
-
+  '

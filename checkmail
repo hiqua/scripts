@@ -9,6 +9,7 @@ imapfilter >> "$LOG"
 mbsync -q -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a >> "$LOG"
 
 # For notmuch
+. "$HOME"/.zsh/10_globals.zsh
 . "$HOME"/.zsh/11_locals.zsh
 
 # cat to avoid non-zero return value from grep
