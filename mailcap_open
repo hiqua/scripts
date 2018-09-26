@@ -7,7 +7,7 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-f="$(mktemp 'mailcap_open_XXXXXX')" && cp "$1" "$f"
+f="$(mktemp)" && cp "$1" "$f"
 
 xdg-open "$f" &
 
