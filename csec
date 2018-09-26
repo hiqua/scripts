@@ -1,2 +1,2 @@
 #!/bin/sh
-firefox -P csec -no-remote
+firefox -P gmail -no-remote

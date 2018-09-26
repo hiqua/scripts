@@ -5,6 +5,10 @@ set -u
 LOG="$HOME"/tmp/checkmail
 date >> "$LOG"
 
+# For notmuch and imapfilter
+. "$HOME"/.zsh/10_globals.zsh
+. "$HOME"/.zsh/11_locals.zsh
+
 imapfilter >> "$LOG"
 mbsync -q -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a >> "$LOG"
 

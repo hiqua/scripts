@@ -1,2 +1,0 @@
-#!/bin/sh
-$NPM_GLOBAL_BIN/solium -c "$HOME"/.config/solium/soliumrc.json "$@"
