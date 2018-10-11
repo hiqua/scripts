@@ -3,12 +3,7 @@ set -e
 set -u
 echo "Using files:"
 find . -maxdepth 2 -type f -iname 'plan*' | sort
-
-# could use this to find the right line...
-# find . -maxdepth 2 -type f -iname 'plan*' -print0 | xargs -0 -r grep -h 'spent on' | tr ':' ' ' | gawk '
-
-# ...but just assume the last line is the one we look for
-find . -maxdepth 2 -type f -iname 'plan*' -exec tail -n 1 '{}' \; | tr ':' ' ' | gawk '
+find . -maxdepth 2 -type f -iname 'plan*' -print0 | xargs -0 -r grep -h 'spent on' | tr ':' ' ' | gawk '
 { time[$NF] += $1 * 60 + $2}
 
 function q(a,b){
