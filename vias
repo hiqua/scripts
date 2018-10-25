@@ -9,7 +9,7 @@ show_usage(){
 solc="solc --asm"
 
 if [ "$#" -eq 3 ]; then
-  solc="$solc"" --optimize"
+  solc="$solc"" --optimize --optimize-runs 20000"
   shift
 fi
 
