@@ -5,16 +5,17 @@ set -u
 watch_plan(){
   # refactor
   printf 'activities.txt' | entr -d sh -c '
-  ./tiro < activities.txt > plan.txt
+  plan_fn=plan_"$(hostname)".txt
+  ./tiro < activities.txt > "$plan_fn"
   act_date="$(head -n 1 activities.txt)"
   clear
-  cat plan.txt
+  cat "$plan_fn"
   subfolder=history/"$(date -d "$act_date" +"%Y-%m-w%V")"/"$(date -d "$act_date" +"%Y-%m-%d")"
   mkdir -p "$subfolder"/archive
   cur_date="$(date --iso-8601=seconds)"
   # ignore no match
   (cd $subfolder && mv plan_*.txt activities_*.txt archive/) 2>/dev/null
-  cp plan.txt "$subfolder"/plan_"$cur_date".txt
+  cp "$plan_fn" "$subfolder"/plan_"$cur_date".txt
   cp activities.txt "$subfolder"/activities_"$cur_date".txt
   '
 }
