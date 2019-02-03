@@ -10,7 +10,7 @@ watch_plan(){
   act_date="$(head -n 1 activities.txt)"
   clear
   cat "$plan_fn"
-  subfolder=history/"$(date -d "$act_date" +"%Y-%m-w%V")"/"$(date -d "$act_date" +"%Y-%m-%d")"
+  subfolder=history/"$(date -d "$act_date" +"%Y-w%V")"/"$(date -d "$act_date" +"%Y-%m-%d")"
   mkdir -p "$subfolder"/archive
   cur_date="$(date --iso-8601=ns)"
   # ignore no match
