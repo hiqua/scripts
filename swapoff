@@ -1,11 +1,13 @@
 #!/bin/sh
+. "$HOME"/.zsh/10_globals.zsh
 . "$HOME"/.zsh/15_path.zsh
 set -u
 set -x
+LOGFILE="$USERTMP"/so.log
 while true; do
   show="$(solaar show)"
-  date >>~/tmp/so.log
-  printf "%s" "$show" | grep K780 && solaar config k780 fn-swap false >> ~/tmp/so.log 2>&1
-  printf "%s" "$show" | grep K750 && solaar config k750 fn-swap false >> ~/tmp/so.log 2>&1
+  date >> "$LOGFILE"
+  printf "%s" "$show" | grep K780 && solaar config k780 fn-swap false >> "$LOGFILE" 2>&1
+  printf "%s" "$show" | grep K750 && solaar config k750 fn-swap false >> "$LOGFILE" 2>&1
   sleep 180
 done

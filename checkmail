@@ -2,7 +2,7 @@
 set -e
 set -u
 
-LOG="$HOME"/tmp/checkmail
+LOG="$HOME"/.tmp/checkmail
 date >> "$LOG"
 
 # For notmuch and imapfilter

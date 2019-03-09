@@ -5,7 +5,9 @@ path="/usr/bin/mutt"
 
 
 command="${path##*/}"
-folder="$HOME"/documents/habits/"$command"_count
+folder="$HOME"/50_59_self_improvement/52_habits/"$command"_count
+mkdir -p "$folder"
+
 file="$folder"/"$(date --iso-8601)"
 
 mkdir -p "$folder"
