@@ -6,13 +6,41 @@ path="/usr/bin/mutt"
 
 command="${path##*/}"
 folder="$HOME"/50_59_self_improvement/52_habits/"$command"_count
-mkdir -p "$folder"
-
 file="$folder"/"$(date --iso-8601)"
 
 mkdir -p "$folder"
-printf "%s\n" "$(date --iso-8601=minutes)" >> "$file"
+
+r="$(date +%N)"
+echo "Write $r"
+read rr
+if [ "$rr" != "$r" ]; then
+  echo "Wrong code, exiting..."
+  exit 1
+fi
+
+first_reason="Need to send email"
+second_reason="Read email"
+third_reason="Override for a perfectly good reason"
+echo "Write $first_reason or $second_reason or $third_reason"
+read reason
+
+
+if [ "$reason" = "$first_reason" ] || [ "$reason" = "$second_reason" ] || [ "$reason" = "$third_reason" ]; then
+  if [ "$reason" = "$second_reason" ] && [ -f "$file" ]; then
+    echo "Emails already read today!"
+    exit 2
+  fi
+
+  printf "%s\n" "$(date --iso-8601=minutes)" >> "$file"
+  arg="-F ${XDG_CONFIG_DIR:=$HOME/.config}/mutt/muttrc"
+  "$path" $arg "$@"
+fi
+
+
+
+
 
 # we could directly iterate over the line with awk and do "sleep 1" for every
 # line, but we prefer to close the file ASAP instead.
-wc -l "$file" | awk '{print "Waiting " $1 " seconds..." ; system("sleep " $1)}' && "$path" "$@"
+# waiting for as many lines in seconds
+# wc -l "$file" | awk '{print "Waiting " $1 " seconds..." ; system("sleep " $1)}' && "$path" $arg "$@"
