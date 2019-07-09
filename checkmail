@@ -9,8 +9,10 @@ set -u
 LOG="$USERTMP"/checkmail
 date >> "$LOG"
 
-imapfilter >> "$LOG"
-mbsync -q -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a >> "$LOG"
+
+email_sync(){
+  imapfilter >> "$LOG" || return "$?"
+  mbsync -q -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a >> "$LOG" || return "$?"
 
 # For notmuch
 . "$HOME"/.zsh/10_globals.zsh
@@ -20,3 +22,7 @@ mbsync -q -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a >> "$LOG"
 notmuch new -q 2>&1 >/dev/null |\
   grep -v "Note: Ignoring non-mail file:" |\
   cat >> "$LOG"
+}
+
+# retry in case of failures, and print stderr from last attempt
+email_sync 2>/dev/null || email_sync 2>/dev/null || email_sync
