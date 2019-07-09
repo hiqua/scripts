@@ -7,6 +7,9 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
+# weird, could be rewritten
+export TMPDIR="${TMPDIR:=/tmp/mailcap}"
+mkdir -p "$TMPDIR"
 f="$(mktemp)" && cp "$1" "$f"
 
 xdg-open "$f" &
