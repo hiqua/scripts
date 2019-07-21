@@ -5,10 +5,11 @@ LOGFILE="$USERTMP"/so.log
 set -u
 set -x
 LOGFILE="$USERTMP"/so.log
+SOLAARCMD="solaar"
 while true; do
-  show="$(solaar show)"
+  show="$($SOLAARCMD show)"
   date >> "$LOGFILE"
-  printf "%s" "$show" | grep K780 && solaar config k780 fn-swap false >> "$LOGFILE" 2>&1
-  printf "%s" "$show" | grep K750 && solaar config k750 fn-swap false >> "$LOGFILE" 2>&1
+  printf "%s" "$show" | grep K780 && $SOLAARCMD config k780 fn-swap false >> "$LOGFILE" 2>&1
+  printf "%s" "$show" | grep K750 && $SOLAARCMD config k750 fn-swap false >> "$LOGFILE" 2>&1
   sleep 180
 done
