@@ -11,6 +11,8 @@ tmux split-window
 tmux resize-pane -D 10
 tmux select-pane -U
 
+# need when syncthing tiro across computers
+chmod u+x tiro
 tmux respawn-pane -t top-right -k watch_plan
 
 tmux respawn-pane -t bottom-right -k "todo_watch t ${PLANTODO_FLAG:-}"
