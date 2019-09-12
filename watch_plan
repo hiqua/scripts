@@ -2,6 +2,7 @@
 # set -e
 set -u
 
+# date -d "$date" compatible with short iso 8601 and long
 watch_plan(){
   # refactor
   printf 'activities.txt' | entr -d sh -c '

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 set -u
-cd "$HOME"/mobile/0_planning || exit 2
+cd "$MOBILE_DIR"/0_planning || exit 2
 
 # create panes
 tmux split-window -h
