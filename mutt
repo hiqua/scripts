@@ -12,7 +12,7 @@ mkdir -p "$folder"
 
 r="$(date +%N)"
 echo "Write $r"
-read rr
+read -r rr
 if [ "$rr" != "$r" ]; then
   echo "Wrong code, exiting..."
   exit 1
@@ -22,7 +22,7 @@ first_reason="Need to send email"
 second_reason="Read email"
 third_reason="Override for a perfectly good reason"
 echo "Write '$first_reason' or '$second_reason' or '$third_reason'"
-read reason
+read -r reason
 
 
 if [ "$reason" = "$first_reason" ] || [ "$reason" = "$second_reason" ] || [ "$reason" = "$third_reason" ]; then

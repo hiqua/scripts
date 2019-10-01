@@ -6,8 +6,6 @@ show_usage(){
   echo "Usage: $0 Contract.sol"
 }
 
-solc="solc --asm"
-
 if [ "$#" -ne 1 ]; then
   show_usage
   exit 1

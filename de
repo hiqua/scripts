@@ -43,7 +43,7 @@ fi
 
 
 # check success
-if [ "$(xrandr  | grep connected | grep -v disconnected | wc -l)" = "2" ]; then
+if [ "$(xrandr  | grep connected | grep -c -v disconnected)" = "2" ]; then
   printf 'GT_PROFILE="Dual"' > "$HOME"/.zsh/12_gnome_terminal_profile.zsh
 fi
 

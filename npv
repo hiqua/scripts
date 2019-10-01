@@ -8,7 +8,7 @@ set -u
 OPENVPN_PID_FILE="/var/run/openvpn/openvpn.pid"
 
 safe_k(){
-  if [ ! -z "$1" ]; then
+  if [ -n "$1" ]; then
     echo "trying to kill"
     kill "$1"
     sleep 1

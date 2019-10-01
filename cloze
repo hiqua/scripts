@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 set -u
-#bash to use $RANDOM 
+# bash to use $RANDOM
 fraction=6
 
 if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
@@ -19,7 +19,7 @@ threshold=$((32768 / fraction))
 count=1
 while read -r line; do
   new_r=$RANDOM
-  if [ $new_r -le $threshold ] && [ ! -z "$@" ]; then
+  if [ $new_r -le $threshold ] && [ ! -z "$*" ]; then
     echo "{{c""$count""::""$line""}}"
     count=$((count+1))
   else
