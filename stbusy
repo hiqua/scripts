@@ -1,0 +1,14 @@
+#!/bin/sh
+# stay busy (meant to be run periodically to always have at least one file in
+# mobile folder)
+set -e
+set -u
+. "$ZDOTDIR"/11_locals.zsh
+mob_folder="$MOBILE_DIR/8_while/"
+count="$(find "$mob_folder" -size +1c -type f -printf 'A' | wc -c)"
+
+# copy, but only twice...
+if [ "$count" -le 2 ]; then
+  find "$HOME"/90_99_entertainment/99_tmp_to_mobile/ -mindepth 1 ! -name '.' -type f -size -400M -print0 | sort -z | head -z -n1 | xargs -0 mv -t "$mob_folder"
+  find "$HOME"/90_99_entertainment/99_tmp_to_mobile/ -mindepth 1 -type d -exec rmdir '{}' \; 2>/dev/null
+fi
