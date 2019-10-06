@@ -1,6 +1,6 @@
 #!/bin/sh
-. "$HOME"/.zsh/10_globals.zsh
-. "$HOME"/.zsh/15_path.zsh
+# . "$HOME"/.zsh/10_globals.zsh
+# . "$HOME"/.zsh/15_path.zsh
 LOGFILE="$USERTMP"/so.log
 set -u
 set -x
@@ -10,6 +10,5 @@ while true; do
   show="$($SOLAARCMD show)"
   date >> "$LOGFILE"
   printf "%s" "$show" | grep K780 && $SOLAARCMD config k780 fn-swap false >> "$LOGFILE" 2>&1
-  printf "%s" "$show" | grep K750 && $SOLAARCMD config k750 fn-swap false >> "$LOGFILE" 2>&1
   sleep 180
 done
