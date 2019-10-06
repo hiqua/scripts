@@ -1,0 +1,2 @@
+#!/bin/sh
+keynav "loadconfig $XDG_CONFIG_HOME/keynav/keynavrc,$@"
