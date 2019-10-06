@@ -2,7 +2,7 @@
 set -e
 set -u
 # shellcheck source=/dev/null
-. "$HOME"/.zsh/11_locals.zsh
+. "$ZDOTDIR"/11_locals.zsh
 
 DATETAG="$(date +%F_%s)"
 

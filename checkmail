@@ -3,8 +3,8 @@ set -e
 set -u
 
 # For notmuch and imapfilter
-. "$HOME"/.zsh/10_globals.zsh
-. "$HOME"/.zsh/11_locals.zsh
+. "$ZDOTDIR"/10_globals.zsh
+. "$ZDOTDIR"/11_locals.zsh
 
 LOG="$USERTMP"/checkmail
 date >> "$LOG"
@@ -15,8 +15,8 @@ email_sync(){
   mbsync -q -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a >> "$LOG" || return "$?"
 
 # For notmuch
-. "$HOME"/.zsh/10_globals.zsh
-. "$HOME"/.zsh/11_locals.zsh
+. "$ZDOTDIR"/10_globals.zsh
+. "$ZDOTDIR"/11_locals.zsh
 
 # cat to avoid non-zero return value from grep
 notmuch new -q 2>&1 >/dev/null |\
