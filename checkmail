@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 set -u
+ZDOTDIR="$HOME/.config/zsh"
 
 # For notmuch and imapfilter
 . "$ZDOTDIR"/10_globals.zsh

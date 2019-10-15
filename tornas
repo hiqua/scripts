@@ -1,12 +1,11 @@
 #!/bin/sh
 set -e
 set -u
-. "$ZDOTDIR/11_locals.zsh"
 
+. "$HOME/.config/zsh/11_locals.zsh"
 
 if [ -f "$*" ]; then
   mv "$*" "$NASYNC"
 else
   (cd "$NASYNC" && nq -c m2torrent -m "$*")
 fi
-

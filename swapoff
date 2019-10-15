@@ -1,9 +1,9 @@
 #!/bin/sh
-# . "$HOME"/.zsh/10_globals.zsh
-# . "$HOME"/.zsh/15_path.zsh
-LOGFILE="$USERTMP"/so.log
 set -u
 set -x
+. "$ZDOTDIR"/10_globals.zsh
+. "$ZDOTDIR"/15_path.zsh
+LOGFILE="$USERTMP"/so.log
 LOGFILE="$USERTMP"/so.log
 SOLAARCMD="solaar"
 while true; do
