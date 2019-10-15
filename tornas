@@ -7,8 +7,6 @@ set -u
 if [ -f "$*" ]; then
   mv "$*" "$NASYNC"
 else
-  cd "$NASYNC"
-  nq -c m2torrent -m "$*"
-  cd -
+  (cd "$NASYNC" && nq -c m2torrent -m "$*")
 fi
 

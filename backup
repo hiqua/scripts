@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 set -u
-. /etc/zsh/zsh_envh
+. /etc/zsh/zshenv
 
 # shellcheck source=/dev/null
 . "$ZDOTDIR"/11_locals.zsh

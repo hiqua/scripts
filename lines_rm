@@ -18,7 +18,7 @@ fi
 threshold=$((32768 / fraction))
 echo_rand(){
   new_r=$RANDOM
-  if [ $new_r -le $threshold ] && [ ! -z "$@" ] && (echo "$@" | grep -v "^[[:space:]]*#" > /dev/null); then
+  if [ $new_r -le $threshold ] && [ -n "$*" ] && (echo "$@" | grep -v "^[[:space:]]*#" > /dev/null); then
     echo "# DELETED LINE"
   else
     echo "$@"
