@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+set -u
+SUB=("in" "main" "pr" "sd" "wf")
+for sub in "${SUB[@]}"; do
+  workdir="$MOBILE_DIR_WORK/TODO/$sub"
+  homedir="$TODO_GLOBAL/$sub"
+  for f in "$workdir"/* ; do
+    target_f="$homedir/$(basename "$f")"
+    (grep -v @work "$f" || true) >> "$target_f"
+
+    tmp="$(mktemp)"
+    (grep @work "$f" || true) > "$tmp"
+    mv "$tmp" "$f"
+  done
+done
