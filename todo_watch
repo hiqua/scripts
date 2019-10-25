@@ -5,14 +5,25 @@ tcmd="$1"
 shift
 
 
-while true; do
-  # probably useless, if fs is ok
-  sync "$TODO_GLOBAL"/*
-  # still got the bug with 0.4 under heavy load with only one sync
-  sleep 0.4
-  clear
-  sync "$TODO_GLOBAL"/*
-  # don't show done tasks
-  $tcmd ls "$@" | grep -v '[[:digit:]][[:digit:]] x'
-  inotifywait -qq -e create,modify "$TODO_GLOBAL"/* > /dev/null
-done
+twatch(){
+  while true; do
+    # probably useless, if fs is ok
+    sync "$TODO_GLOBAL"/*
+    # still got the bug with 0.4 under heavy load with only one sync
+    sleep 0.4
+    clear
+    sync "$TODO_GLOBAL"/*
+
+    if ! grep "^[^x].*$*" "$(t src)" ; then
+      echo "No items anymore, exiting..."
+      sleep 2
+      return 0
+    fi
+
+    # don't show done tasks
+    $tcmd ls "$@" | grep -v '[[:digit:]][[:digit:]] x'
+    inotifywait -qq -e create,modify "$TODO_GLOBAL"/* > /dev/null
+  done
+}
+
+twatch "$@"
