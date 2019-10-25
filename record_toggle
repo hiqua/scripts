@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+set -u
+if pgrep recordmydesktop ; then
+  killall recordmydesktop
+  notify-send "Stopped recording."
+else
+  notify-send "Starting recording."
+  recordmydesktop --on-the-fly-encoding -o ~/.tmp/screenshots/out.ogv
+fi
