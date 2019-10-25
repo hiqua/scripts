@@ -25,5 +25,5 @@ notmuch new -q 2>&1 >/dev/null |\
   cat >> "$LOG"
 }
 
-# retry in case of failures, and print stderr from last attempt
-email_sync 2>/dev/null || email_sync 2>/dev/null || email_sync
+# retry in case of failures, and ignore errors
+email_sync 2>/dev/null || email_sync 2>/dev/null
