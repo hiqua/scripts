@@ -1,2 +1,2 @@
 #!/bin/sh
-firefox -P whatsapp -no-remote
+firefox -P wa -no-remote
