@@ -1,0 +1,3 @@
+#!/bin/sh
+# XXX: change name of profile
+firefox -P link -no-remote
