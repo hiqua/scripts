@@ -2,7 +2,7 @@
 set -e
 set -u
 # shellcheck source=/dev/null
-. "$ZDOTDIR"/11_locals.zsh
+. "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
 
 OLD_TODO="$TODO_GLOBAL/main/.todo.txt.old"
 TODO="$TODO_GLOBAL/main/todo.txt"
