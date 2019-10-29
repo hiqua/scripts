@@ -1,0 +1,40 @@
+#!/bin/sh
+set -e
+set -u
+
+# use 'master --' to avoid confusions with the directory named 'master'
+
+# fails if not a branch
+full_branch_name="$(git symbolic-ref HEAD)"
+branch_name="${full_branch_name##refs/heads/}"
+gerrit_full_branch_name="${full_branch_name}_gerrit"
+gerrit_branch_name="${gerrit_full_branch_name##refs/heads/}"
+
+if git show-ref --verify --quiet "$gerrit_full_branch_name" ; then
+  # branch exists
+  git checkout "$gerrit_branch_name"
+
+  commit="$(git rev-parse HEAD)"
+
+  git reset --hard "$branch_name"
+  git reset --soft master --
+
+  git commit -C "$commit"
+else
+  git checkout -b "$gerrit_branch_name"
+  git reset --soft master --
+  git commit
+fi
+
+
+echo "Push?"
+answer=N
+read -r "answer"
+if [ "$answer" = "y" ] || [ "$answer" = "Y" ] ; then
+  echo "Pushing..."
+  git pg
+else
+  echo "Not pushing."
+fi
+
+git checkout "$branch_name"
