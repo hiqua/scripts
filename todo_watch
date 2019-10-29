@@ -14,7 +14,7 @@ twatch(){
     clear
     sync "$TODO_GLOBAL"/*
 
-    if ! grep "^[^x].*$*" "$(t src)" ; then
+    if ! ($tcmd -p ls "$@" | head -n -2 | grep -E -v '^[[:digit:]]{2} x ' ) > /dev/null ; then
       echo "No items anymore, exiting..."
       sleep 2
       return 0
