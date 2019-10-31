@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+set -u
+
+# for MOBILE_DIR
+. "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
+
+
+# should already be in opus format
+p="$(rmusic.py)"
+
+tgt="$MOBILE_DIR"/music/auto/
+mkdir -p "$tgt"
+cp -r -n "$p" "$tgt"
