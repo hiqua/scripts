@@ -15,7 +15,7 @@ tmux select-pane -U
 chmod u+x tiro
 tmux respawn-pane -t top-right -k watch_plan
 
-tmux respawn-pane -t bottom-right -k "todo_watch t ${PLANTODO_FLAG:-}"
+tmux respawn-pane -t bottom-right -k "todo_watch t Y ${PLANTODO_FLAG:-}"
 
 vi -c 'set commentstring=#\ %s' activities.txt
 tmux kill-pane

@@ -1,9 +1,16 @@
 #!/bin/sh
 # shellcheck disable=SC1090
+set -e
+set -u
+
 . "$ZDOTDIR"/11_locals.zsh
 tcmd="$1"
 shift
 
+if [ "${TODOWATCH_LASTPRIO:-nope}" = "nope" ]; then
+  TODOWATCH_LASTPRIO="$1"
+  shift
+fi
 
 twatch(){
   while true; do
@@ -14,14 +21,19 @@ twatch(){
     clear
     sync "$TODO_GLOBAL"/*
 
-    if ! ($tcmd -p ls "$@" | head -n -2 | grep -E -v '^[[:digit:]]{2} x ' ) > /dev/null ; then
-      echo "No items anymore, exiting..."
-      sleep 2
-      return 0
+    if [ "${TODOWATCH_LEAVEWHENDONE:-}" = "y" ]; then
+      # shellcheck disable=SC2068
+      if ! ($tcmd -p lsp A-"$TODOWATCH_LASTPRIO" $@ | head -n -2 | grep -E -v '^[[:digit:]]{2} x ' ) > /dev/null ; then
+        echo "No items anymore, exiting..."
+        sleep 2
+        # return 0
+      fi
     fi
 
     # don't show done tasks
-    $tcmd ls "$@" | grep -v '[[:digit:]][[:digit:]] x'
+
+    # shellcheck disable=SC2068
+    $tcmd lsp A-"$TODOWATCH_LASTPRIO" $@ | grep -v '[[:digit:]][[:digit:]] x'
     inotifywait -qq -e create,modify "$TODO_GLOBAL"/* > /dev/null
   done
 }
