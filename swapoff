@@ -1,13 +1,13 @@
 #!/bin/sh
 set -u
 set -x
+ZDOTDIR="${ZDOTDIR:-$HOME/.config/zsh}"
 . "$ZDOTDIR"/10_globals.zsh
 . "$ZDOTDIR"/15_path.zsh
 LOGFILE="$USERTMP"/so.log
-LOGFILE="$USERTMP"/so.log
 SOLAARCMD="solaar"
+show="$($SOLAARCMD show)"
 while true; do
-  show="$($SOLAARCMD show)"
   date >> "$LOGFILE"
   printf "%s" "$show" | grep K780 && $SOLAARCMD config k780 fn-swap false >> "$LOGFILE" 2>&1
   sleep 180
