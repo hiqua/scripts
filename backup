@@ -1,13 +1,12 @@
 #!/bin/sh
 set -e
 set -u
-. /etc/zsh/zshenv
 
 # shellcheck source=/dev/null
-. "$ZDOTDIR"/11_locals.zsh
+. "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
 
 DATETAG="$(date +%F_%s)"
 
 sudo -i -u hiq cp "$MOBILE_DIR"/keepass/keepass_bdd.kdbx "$LOCAL_BACKUP"/keepass/keepass_bdd_"$DATETAG".kdbx
 sudo -i -u hiq cp -r "$TODO_GLOBAL" "$LOCAL_BACKUP"/TODO/TODO_"$DATETAG"
-sudo -i -u hiq cp -r ~/.calcurse  "$LOCAL_BACKUP"/calcurse/calcurse_"$DATETAG"
+sudo -i -u hiq cp -r "$MOBILE_DIR"/calcurse  "$LOCAL_BACKUP"/calcurse/calcurse_"$DATETAG"
