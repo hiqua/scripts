@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 set -u
+
+source /etc/zsh/zshenv
+source "$ZDOTDIR/11_locals.zsh"
+
 SUB=("in" "main" "pr" "sd" "wf")
 for sub in "${SUB[@]}"; do
   workdir="$MOBILE_DIR_WORK/TODO/$sub"
