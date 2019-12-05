@@ -7,8 +7,9 @@ set -u
 
 
 # should already be in opus format
-p="$(rmusic.py)"
+p="$($HOME/.local/bin/rmusic.py)"
 
-tgt="$MOBILE_DIR"/music/auto/
+# tgt="$MOBILE_DIR"/music/auto/
+tgt="$HOME/00_09_meta/01_syncthing/mob_music"
 mkdir -p "$tgt"
 cp -r -n "$p" "$tgt"
