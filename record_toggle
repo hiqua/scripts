@@ -6,5 +6,6 @@ if pgrep recordmydesktop ; then
   notify-send "Stopped recording."
 else
   notify-send "Starting recording."
-  recordmydesktop --on-the-fly-encoding -o ~/.tmp/screenshots/out.ogv
+  mkdir -p ~/.tmp/screencasts
+  recordmydesktop --on-the-fly-encoding -o  ~/.tmp/screencasts/out.ogv
 fi

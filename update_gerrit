@@ -6,9 +6,20 @@ set -u
 
 # fails if not a branch
 full_branch_name="$(git symbolic-ref HEAD)"
+
+
 branch_name="${full_branch_name##refs/heads/}"
+# XXX: add name of host, or uuid depending on name of host
 gerrit_full_branch_name="${full_branch_name}_gerrit"
 gerrit_branch_name="${gerrit_full_branch_name##refs/heads/}"
+
+# for unstaged changes
+# XXX: add git stash pop to some TRAP
+stash="no"
+git diff-index --quiet HEAD -- || stash="yes"
+if [ "$stash" = "yes" ]; then
+  git stash
+fi
 
 if git show-ref --verify --quiet "$gerrit_full_branch_name" ; then
   # branch exists
@@ -27,9 +38,15 @@ else
 fi
 
 
-echo "Push?"
-answer=N
-read -r "answer"
+if [ "${commit:-x}" = "x" ]; then
+  echo "Push?"
+  answer=N
+  read -r "answer"
+else
+  echo "Pushing, as the Gerrit branch already existed."
+  answer="y"
+fi
+
 if [ "$answer" = "y" ] || [ "$answer" = "Y" ] ; then
   echo "Pushing..."
   git pg
@@ -38,3 +55,7 @@ else
 fi
 
 git checkout "$branch_name"
+# restore
+if [ "$stash" = "yes" ]; then
+  git stash pop
+fi
