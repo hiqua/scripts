@@ -3,7 +3,7 @@ set -e
 set -u
 echo "Using files:"
 find . -maxdepth 2 -type f -iname 'plan*' | sort
-find . -maxdepth 2 -type f -iname 'plan*' -print0 | xargs -0 -r grep -h 'spent on' | tr ':' ' ' | gawk '
+find . -maxdepth 2 -type f -iname 'plan*' -print0 | xargs -0 -r grep -h '^@.*:.*$' | tr ':' ' ' | awk '{print $2,$1}' | gawk '
 { time[$NF] += $1 * 60 + $2}
 
 function q(a,b){
