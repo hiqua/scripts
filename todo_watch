@@ -1,6 +1,8 @@
 #!/bin/sh
 # shellcheck disable=SC1090
-set -e
+# TODO: replace with python or something else
+# XXX: avoid exiting for bogus reasons?
+# set -e
 set -u
 
 . "$ZDOTDIR"/11_locals.zsh

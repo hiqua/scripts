@@ -2,6 +2,6 @@
 set -e
 set -u
 
-msg="$1"
+time="$1"
 shift
-printf "notify-send %s" "$msg" | at "$@"
+printf 'notify-send "%s"\n' "$*" | at "$time"
