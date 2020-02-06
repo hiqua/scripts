@@ -3,6 +3,6 @@ set -e
 set -u
 tmux split-window -h
 tmux select-pane -L
-tmux respawn-pane -t top-right -k todo_watch t @email
+tmux respawn-pane -t top-right -k todo_watch t Z @email
 tmux new-window -d 'checkmail'
 mutt
