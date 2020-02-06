@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import subprocess
+import json
+from pprint import pprint
+
+"""
+Ideas:
+    * swap on both displays (1 matches 11, etc.)
+"""
+
+
+def swap():
+    out = subprocess.check_output(['i3-msg', '-t', 'get_workspaces'],
+                                  encoding='utf-8')
+    out = subprocess.check_output(['i3-msg', '-t', 'get_tree'],
+                                  encoding='utf-8')
+    # out = subprocess.check_output(['i3-msg', '-t', 'get_outputs'],
+    #                               encoding='utf-8')
+
+    current = None
+    d = json.loads(out)
+    pprint(d)
+
+    # subprocess.run(
+    #     ['i3-msg',  f"rename workspace {target} to temporary; rename workspace {current} to {target}; rename workspace temporary to {current}"])
+    # subprocess.run(["i3-msg", f"workspace {current}"])
+
+
+swap()
