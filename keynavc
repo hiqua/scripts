@@ -1,2 +1,3 @@
 #!/bin/sh
+killall keynav
 keynav "loadconfig ${XDG_CONFIG_HOME:-$HOME/.config}/keynav/keynavrc,$*"

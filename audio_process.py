@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # move all non audio files to a + directory at the same level in the hierarchy
 # complete extensions
+# TODO
+# check that the track numbers are consecutive and unique
 import os
 import re
 import shutil
@@ -15,9 +17,14 @@ DEL_EXT = ('m3u', 'db', 'DS_Store')
 def move_file_anyway(f):
     if re.search('00-.*pregap\.', str(f)):
         return True
+    else:
+        return False
 
 
 def child_containing_matching_f(root, ext=EXT):
+    """
+    Yields folders containing files of specified extension.
+    """
     seen = set()
     for x in ext:
         # no yield from rglob, as it might create an exception for rmed files
@@ -33,6 +40,9 @@ def child_containing_matching_f(root, ext=EXT):
 
 
 def clean_files():
+    """
+    Moves irrelevant files to a '+' folder.
+    """
     root = Path('.')
     for d in child_containing_matching_f(root):
         assert d.is_dir(), d
