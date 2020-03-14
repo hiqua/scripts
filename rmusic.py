@@ -18,7 +18,7 @@ def music_root(mpd_conf='~/.config/mpd/mpd.conf'):
         for l in fs:
             if l.startswith('music_directory'):
                 dir = Path(l.split('"')[1]).expanduser()
-                assert dir.exists()
+                assert dir.exists(), dir
                 return dir
 
 

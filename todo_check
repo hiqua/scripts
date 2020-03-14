@@ -8,14 +8,14 @@ OLD_TODO="$TODO_GLOBAL/main/.todo.txt.old"
 TODO="$TODO_GLOBAL/main/todo.txt"
 TODOCLEAN="$TODO_GLOBAL/main/.todo.txt.cur"
 
-sed 's/^ *([a-Z]) //' "$TODO" > "$TODOCLEAN"
+sed 's/^ *\([a-Z]\) //' "$TODO" > "$TODOCLEAN"
 
 if [ -f "$OLD_TODO" ]; then
   tmp="$(mktemp)"
   if grep -F -x -f "$TODOCLEAN" "$OLD_TODO" > "$tmp" ; then
     echo "The following items have been on the list for a long time:"
     # grep -E -v '@work|@out' "$tmp"
-    grep -E -v '@out' "$tmp"
+    grep -E -v '@phone' "$tmp"
   fi
 fi
 
