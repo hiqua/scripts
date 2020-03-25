@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # move all non audio files to a + directory at the same level in the hierarchy
 # complete extensions
+# run replaygain
 # TODO
 # check that the track numbers are consecutive and unique
 import os
 import re
 import shutil
+import multiprocessing
 from pathlib import Path
+import subprocess
 
 # case should be ok by now
 IGNORE = ('folder.jpg', '+')
@@ -82,6 +85,31 @@ def move_to_artist_folder():
             shutil.move(str(d), str(artist_folder))
 
 
+def run_cmd_on_files(d, cmd, x):
+    print('Running on ' + str(d) + ', ' + x + ' files.')
+    subprocess.run(cmd + [str(p) for p in
+                          d.glob('*.' + x)])
+
+
+def compute_replay_gain():
+    root = Path('.')
+    ext = 'flac'
+
+    cmd_to_run_in_pool = []
+
+    for d in child_containing_matching_f(root, (ext,)):
+        assert d.is_dir(), d
+        cmd_to_run_in_pool.append(
+            (d, ['metaflac', '--add-replay-gain'], ext))
+
+    with multiprocessing.Pool() as p:
+        p.starmap(run_cmd_on_files, cmd_to_run_in_pool)
+
+
 if __name__ == '__main__':
+    os.nice(40)
+
     move_to_artist_folder()
     clean_files()
+
+    compute_replay_gain()
