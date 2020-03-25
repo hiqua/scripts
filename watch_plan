@@ -6,11 +6,10 @@ set -u
 watch_plan(){
   # refactor
   printf 'activities.txt' | entr -d sh -c '
-  plan_fn=plan_"$(hostname)".txt
-  ./tiro < activities.txt > "$plan_fn"
-  act_date="$(head -n 1 activities.txt)"
   clear
-  cat "$plan_fn"
+  plan_fn=plan_"$(hostname)".txt
+  CLICOLOR_FORCE=1 ./tiro < activities.txt | tee "$plan_fn"
+  act_date="$(head -n 1 activities.txt)"
   subfolder=history/"$(date -d "$act_date" +"%Y-w%V")"/"$(date -d "$act_date" +"%Y-%m-%d")"
   mkdir -p "$subfolder"/archive
   cur_date="$(date --iso-8601=ns)"
