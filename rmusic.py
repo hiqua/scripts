@@ -4,7 +4,8 @@ import pathlib
 from pathlib import Path
 
 
-def child_containing_matching_f(root, ext=('flac', 'opus', 'ogg', 'mp3')):
+def child_containing_matching_f(root, ext=('opus', 'ogg', 'mp3')):
+    # only compressed files
     candidates = []
     for x in ext:
         candidates.extend(c.parent for c in root.rglob('*.' + x))
@@ -17,6 +18,7 @@ def music_root(mpd_conf='~/.config/mpd/mpd.conf'):
     with open(Path(mpd_conf).expanduser()) as fs:
         for l in fs:
             if l.startswith('music_directory'):
+                # we don't want the temporary folders, only main one
                 dir = Path(l.split('"')[1]).expanduser()
                 assert dir.exists(), dir
                 return dir
