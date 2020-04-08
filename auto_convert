@@ -1,0 +1,37 @@
+#!/bin/bash
+set -x
+set -u
+
+dir1="/home/hiq/00_09_meta/01_syncthing/nas_downloads/03_mus_convert"
+dir2="/home/hiq/00_09_meta/01_syncthing/mobile_music"
+my_array=("$dir1" "$dir2")
+
+log="$HOME"/.tmp/log_autoconvert
+
+convert_dir(){
+  dir="$@"
+  printf "Converting folder: %s\n" "$dir" >> "$log"
+  date >> "$log"
+
+  # fix permissions
+  chmod -R u=rwX,g=rX,o=rX "$dir"
+
+  find "$dir" -type d -iname '+' -delete
+  find "$dir" -type f -iname '*.zip' -delete
+
+  # mp3 takes too much space, convert it as well
+  find "$dir" \( -type f -iname '*.flac' -o -iname '*.m4a' -o -iname '*.wav' -o -iname '*.wv' -o -iname '*.ape' -o -iname '*.mp3' \) -print0 |\
+    xargs -r -0 parallel "ffmpeg -y -i {} -b:a 96k {.}.opus && rm {}" ::: >> "$log" 2>&1
+
+  echo >> "$log"
+}
+
+
+
+while true; do
+  for dir in "${my_array[@]}"; do
+    convert_dir "$dir"
+  done
+
+  sleep 360
+done
