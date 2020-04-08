@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+from pathlib import Path
+
+
+def find(p):
+    return list(p.rglob('gradlew'))
+
+
+if __name__ == '__main__':
+    path = Path('.').absolute()
+
+    while not find(path) and path != path.parent:
+        path = path.parent
+
+    if find(path):
+        print(find(path)[0].absolute())
