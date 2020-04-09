@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""
+Copy or move files into batches of fixed size (apart from the last one).
+"""
+import sys
+from pathlib import Path
+from shutil import move
+import subprocess
+
+
+def sublists(size):
+    p = Path('.')
+    all_files = list(p.glob('*'))
+    all_files.sort()
+    l = len(all_files)
+    for i in range(0, len(all_files), size):
+        l -= len(all_files[i:i+size])
+        yield all_files[i: i+size]
+    assert l == 0
+
+
+def copy(src, dst):
+    """Simpler than fiddling with copytree...
+    """
+    subprocess.run(['cp', '-r', src, dst])
+
+
+def main_generic(size, action):
+    p = Path('.')
+    for i, files_in_batch in enumerate(sublists(size)):
+        batch_path = p / ('00_batch_' + str(i))
+        batch_path.mkdir()
+        for f in files_in_batch:
+            print(f'{action.__name__} on {f} to {batch_path}')
+            action(str(f), str(batch_path))
+
+
+def main_move(size):
+    main_generic(size, move)
+
+
+def main_copy(size):
+    main_generic(size, copy)
+
+
+if __name__ == '__main__':
+    # arg: size max of batches
+    assert len(sys.argv) == 3
+    mode = sys.argv[1]
+    size = int(sys.argv[2])
+    if mode == 'm':
+        main_move(size)
+    elif mode == 'c':
+        main_copy(size)
