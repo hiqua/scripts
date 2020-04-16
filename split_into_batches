@@ -8,6 +8,9 @@ from shutil import move
 import subprocess
 
 
+DEFAULT_PREFIX = '00_batch_'
+
+
 def sublists(size):
     p = Path('.')
     all_files = list(p.glob('*'))
@@ -25,10 +28,10 @@ def copy(src, dst):
     subprocess.run(['cp', '-r', src, dst])
 
 
-def main_generic(size, action):
+def main_generic(size, action, prefix=DEFAULT_PREFIX):
     p = Path('.')
     for i, files_in_batch in enumerate(sublists(size)):
-        batch_path = p / ('00_batch_' + str(i))
+        batch_path = p / (prefix + "{0:0=7_d}".format(i))
         batch_path.mkdir()
         for f in files_in_batch:
             print(f'{action.__name__} on {f} to {batch_path}')
@@ -43,12 +46,32 @@ def main_copy(size):
     main_generic(size, copy)
 
 
+def unbatch(prefix=DEFAULT_PREFIX):
+    p = Path('.')
+    # we use this folder to prevent from unbatching recursively
+    # XXX: use a proper tmp folder instead
+    unbatching_folder = p / 'zzzzzz_unbatching'
+    unbatching_folder.mkdir()
+    for batch_folder in p.glob(prefix + '*'):
+        for f in batch_folder.iterdir():
+            move(str(f), str(unbatching_folder))
+        batch_folder.rmdir()
+    for f in unbatching_folder.iterdir():
+        move(str(f), str(p))
+    unbatching_folder.rmdir()
+
+
 if __name__ == '__main__':
     # arg: size max of batches
-    assert len(sys.argv) == 3
     mode = sys.argv[1]
-    size = int(sys.argv[2])
     if mode == 'm':
+        assert len(sys.argv) == 3
+        size = int(sys.argv[2])
         main_move(size)
     elif mode == 'c':
+        assert len(sys.argv) == 3
+        size = int(sys.argv[2])
         main_copy(size)
+    elif mode == 'u':
+        assert len(sys.argv) == 2
+        unbatch()
