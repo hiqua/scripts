@@ -2,9 +2,8 @@
 set -x
 set -u
 
-dir1="/home/hiq/00_09_meta/01_syncthing/nas_downloads/03_mus_convert"
-dir2="/home/hiq/00_09_meta/01_syncthing/mobile_music"
-my_array=("$dir1" "$dir2")
+ZDOTDIR="${ZDOTDIR:=$HOME/.config/zsh}"
+. "$ZDOTDIR"/11_locals.zsh
 
 log="$HOME"/.tmp/log_autoconvert
 
@@ -28,6 +27,6 @@ convert_dir(){
 
 
 
-for dir in "${my_array[@]}"; do
+for dir in "${AUTO_CONVERT_FOLDERS[@]}"; do
   convert_dir "$dir"
 done
