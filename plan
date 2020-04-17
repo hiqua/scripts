@@ -5,19 +5,18 @@ cd "$MOBILE_DIR"/0_planning || exit 2
 
 # create panes
 tmux split-window -h
-tmux split-window
+tmux split-window -h
 tmux select-pane -L
-tmux split-window
-tmux resize-pane -D 10
-tmux select-pane -U
+tmux select-pane -L
 
 # need when syncthing tiro across computers
 chmod u+x tiro
-# tmux respawn-pane -t top-right -k 'tiro -a activities.txt -w -n -p history -s history'
-tmux respawn-pane -t top-right -k  'while true; do RUST_BACKTRACE=1 tiro -w -n -a activities.txt -p history -s history ; echo "bug, exited..." ; sleep 2; done'
+tmux respawn-pane -t 1 -k  'while true; do RUST_BACKTRACE=1 ./tiro -w -n -a activities.txt -a $MOBILE_DIR_WORK/0_planning/activities.txt -p history -s history ; echo "bug, exited..." ; sleep 2; done'
 
+# tmux respawn-pane -t bottom-right -k "todo_watch t Y ${PLANTODO_FLAG:-}"
+tmux respawn-pane -t 2 -k "todo_watch t Y ${PLANTODO_FLAG:-}"
 
-tmux respawn-pane -t bottom-right -k "todo_watch t Y ${PLANTODO_FLAG:-}"
+tmux select-layout even-horizontal
 
-vi -c 'set commentstring=#\ %s' activities.txt
-tmux kill-pane
+# could remove parts of these -c and put e.g. in vimrc
+vi -c 'set filetype=tiro' -c 'set tw=80' -c 'set commentstring=#\ %s' activities.txt
