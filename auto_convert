@@ -1,9 +1,9 @@
 #!/bin/bash
-set -x
+set -e
 set -u
 
 ZDOTDIR="${ZDOTDIR:=$HOME/.config/zsh}"
-. "$ZDOTDIR"/11_locals.zsh
+. "$ZDOTDIR"/14_locals_bash.zsh
 
 log="$HOME"/.tmp/log_autoconvert
 
