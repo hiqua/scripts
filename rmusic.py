@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import random
+import os
 import pathlib
 from pathlib import Path
 
@@ -24,6 +25,7 @@ def music_root(mpd_conf='~/.config/mpd/mpd.conf'):
                 return dir
 
 
-root = music_root()
-d = child_containing_matching_f(root)
-print(d)
+if __name__ == '__main__':
+    d = child_containing_matching_f(Path(os.environ['RMUSIC_SOURCE'])
+                                    if 'RMUSIC_SOURCE' in os.environ else music_root())
+    print(d)
