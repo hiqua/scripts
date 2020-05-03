@@ -5,7 +5,7 @@ import pathlib
 from pathlib import Path
 
 
-def child_containing_matching_f(root, ext=('opus', 'ogg', 'mp3')):
+def child_containing_matching_f(root, ext=('opus', 'ogg', 'mp3', 'flac')):
     # only compressed files
     candidates = []
     for x in ext:

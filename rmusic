@@ -5,13 +5,20 @@ set -u
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
 
-
-# should already be in opus format
 p="$($HOME/.local/bin/rmusic.py)"
+tgt="$MOBILE_MUSIC"
+folder_number="$(find "$tgt" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
+LIMIT="30"
 
-# tgt="$MOBILE_DIR"/music/auto/
-tgt="$HOME/00_09_meta/01_syncthing/mobile_music"
+if [ "$folder_number" -ge "$LIMIT" ]; then
+  echo "Already reached the limit, exiting."
+  exit 0
+fi
+
+
 mkdir -p "$tgt"
 cp -r -n "$p" "$tgt"
 
 printf "%s" "$p" >> "$tgt"/"$(basename "$p")"/rmusic_path
+
+mv -n "$p" /home/hiq/90_99_entertainment/01_music/mus_tmp_to_decide
