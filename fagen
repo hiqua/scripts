@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+set -u
+
+# Store the secret using the following:
+# secret-tool store --label=2fa name NAME type 2fa
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 2FA_NAME"
+  exit 1
+fi
+name="$1"
+
+
+secret="$(secret-tool lookup type 2fa name $name)"
+
+oathtool -b --totp "$secret"
+
