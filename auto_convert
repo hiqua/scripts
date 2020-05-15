@@ -15,7 +15,7 @@ convert_dir(){
   # fix permissions
   chmod -R u=rwX,g=rX,o=rX "$dir"
 
-  find "$dir" -type d -iname '+' -exec trash '{}' \;
+  find "$dir" -type d -iname '+' -prune -exec trash '{}' \;
   find "$dir" -type f -iname '*.zip' -exec trash '{}' \;
 
   # mp3 takes too much space, convert it as well
