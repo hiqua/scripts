@@ -1,24 +1,38 @@
-#!/bin/sh
+#!/bin/bash
+{
 set -e
 set -u
 
+LIMIT="10"
+
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
+tgt_opus="$MOBILE_MUSIC/opus"
+tgt_flac="$MOBILE_MUSIC/flac"
 
-p="$($HOME/.local/bin/rmusic.py)"
-tgt="$MOBILE_MUSIC"
-folder_number="$(find "$tgt" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
-LIMIT="30"
-
-if [ "$folder_number" -ge "$LIMIT" ]; then
-  echo "Already reached the limit, exiting."
-  exit 0
+find "$tgt_opus" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -d '' -r folder; do
+if [ ! -d "$tgt_flac"/"$(basename "$folder")" ]; then
+  trash "$folder"
 fi
+done
 
 
-mkdir -p "$tgt"
-cp -r -n "$p" "$tgt"
+for i in {1..$LIMIT} ; do
+  p="$($HOME/.local/bin/rmusic.py)"
+  folder_number="$(find "$tgt_opus" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
 
-printf "%s" "$p" >> "$tgt"/"$(basename "$p")"/rmusic_path
+  if [ "$folder_number" -ge "$LIMIT" ]; then
+    echo "Already reached the limit, exiting."
+    exit 0
+  fi
 
-mv -n "$p" /home/hiq/90_99_entertainment/01_music/mus_tmp_to_decide
+
+  mkdir -p "$tgt_opus"
+  cp -r -n "$p" "$tgt_opus"
+
+  printf "%s" "$p" >> "$tgt_opus"/"$(basename "$p")"/rmusic_path
+
+  mv -n "$p" "$tgt_flac"
+
+done
+}
