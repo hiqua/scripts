@@ -24,5 +24,5 @@ tmux respawn-pane -t 2 -k "todo_watch t Y ${PLANTODO_FLAG:-}"
 
 # could remove parts of these -c and put e.g. in vimrc
 # XXX: try small tw
-vi -c 'set filetype=tiro' -c 'set tw=50' -c 'set commentstring=#\ %s' activities.txt
+vi -c 'set filetype=tiro' -c 'set tw=50' -c 'set commentstring=#\ %s' -c ':n' -c ':bp' activities.txt $MOBILE_DIR_WORK/0_planning/activities.txt
 tmux kill-window
