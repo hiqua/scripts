@@ -9,7 +9,8 @@ def child_containing_matching_f(root, ext=('opus', 'ogg', 'mp3', 'flac')):
     # only compressed files
     candidates = []
     for x in ext:
-        candidates.extend(c.parent for c in root.rglob('*.' + x))
+        candidates.extend(c.parent for c in root.rglob('*.' + x)
+                          if c.parent.name != '+')
     candidates = list(set(candidates))
     if candidates:
         return random.choice(candidates)
