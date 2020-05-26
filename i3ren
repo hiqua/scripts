@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+set -u
+description="$@"
+number="$(i3-msg -t get_workspaces | jq '.[]' | jq 'select(.focused == true)' | jq '.num')"
+
+if [ -z "$description" ]; then
+  title="$number"
+else
+  title="$number: $description"
+fi
+
+cmd="workspace to \"$title\""
+i3-msg rename "$cmd"
