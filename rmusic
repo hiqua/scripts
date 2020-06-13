@@ -19,7 +19,7 @@ done
 
 for ((i=1; i<=LIMIT; i++ )); do
   p="$($HOME/.local/bin/rmusic.py)"
-  folder_number="$(find "$tgt_opus" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
+  folder_number="$(find "$tgt_flac" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
 
   if [ "$folder_number" -ge "$LIMIT" ]; then
     exit 0
