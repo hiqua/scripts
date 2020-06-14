@@ -1,0 +1,8 @@
+#!/bin/sh
+# Add a random album to the mpd queue.
+set -e
+set -u
+d="$(random_directory $MPD_RANDOM_SOURCE_DIRECTORY)"
+i="$(realpath --relative-to="$MPD_RANDOM_BASE_DIRECTORY" "$d")"
+
+mpc add "$i"
