@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 set -u
-find "$HOME" -type d -name '.git' -exec dirname '{}' \; |\
+find "$HOME" -type d -name '.git' -exec dirname '{}' \; 2>/dev/null |\
 while read -r d ; do
   (cd  $d && git remote update > /dev/null 2>&1 &)
 done
