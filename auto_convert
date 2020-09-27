@@ -15,8 +15,8 @@ convert_dir(){
   # fix permissions
   chmod -R u=rwX,g=rX,o=rX "$dir"
 
-  find "$dir" -type d -iname '+' -prune -exec trash '{}' \;
-  find "$dir" -type f -iname '*.zip' -exec trash '{}' \;
+  find "$dir" -type d -iname '+' -prune -exec rm -rf --preserve-root -- '{}' \;
+  find "$dir" -type f -iname '*.zip' -exec rm -rf --preserve-root -- '{}' \;
 
   # mp3 takes too much space, convert it as well
   find "$dir" \( -type f -iname '*.flac' -o -iname '*.m4a' -o -iname '*.wav' -o -iname '*.wv' -o -iname '*.ape' -o -iname '*.mp3' \) -print0 |\
