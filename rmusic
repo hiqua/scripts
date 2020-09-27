@@ -3,7 +3,7 @@
 set -e
 set -u
 
-LIMIT="30"
+LIMIT="40"
 
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
@@ -18,7 +18,13 @@ done
 
 
 for ((i=1; i<=LIMIT; i++ )); do
-  p="$($HOME/.local/bin/rmusic.py)"
+  set +e
+  p="$("$HOME"/.local/bin/rmusic.py)"
+  if [ "$?" -eq 1 ]; then
+    # no folder
+    exit 0
+  fi
+  set -e
   folder_number="$(find "$tgt_flac" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
 
   if [ "$folder_number" -ge "$LIMIT" ]; then

@@ -18,7 +18,7 @@ DEL_EXT = ('m3u', 'db', 'DS_Store')
 
 
 def move_file_anyway(f):
-    if re.search('00-.*pregap\.', str(f)):
+    if re.search(r'00-.*pregap\.', str(f)):
         return True
     else:
         return False
@@ -67,19 +67,36 @@ def clean_files():
                     f.unlink()
 
 
+def get_artist_name_from_folder_name(s):
+    pattern = re.compile(
+        r"(?P<artist>.*) - (.*) \((?P<year>\d{4})\)")
+    match = pattern.match(s)
+
+    if match:
+        return match.group("artist")
+
+
+def test_get_artist_name_from_folder_name():
+    s = 'Archive - Londinium (1996) (CD) (524 285 - 2; ARKCD 1001)'
+    assert get_artist_name_from_folder_name(s) == 'Archive'
+
+    s = 'Run-D.M.C. - Tougher than Leather (1988) (Vinyl) (ve)'
+    assert get_artist_name_from_folder_name(s) == 'Run-D.M.C.'
+
+    s = 'CYNE - Pretty Dark Things (2008) (CD)'
+    assert get_artist_name_from_folder_name(s) == 'CYNE'
+
+
 def move_to_artist_folder():
     root = Path('.')
     for d in child_containing_matching_f(root):
         assert d.is_dir(), d
-        spl = d.name.split(' - ')
-        artist = None
-        if len(spl) == 2:
-            artist = spl[0]
-        else:
-            print(f'Could not find artist name for {spl}')
-            continue
+        artist = get_artist_name_from_folder_name(d.name)
 
-        if d.parent.name != artist:
+        if artist is None:
+            print(f'Could not find artist name for {d.name}')
+            continue
+        elif d.parent.name != artist:
             artist_folder = d.parent / artist
             artist_folder.mkdir(exist_ok=True)
             shutil.move(str(d), str(artist_folder))

@@ -3,6 +3,7 @@ import random
 import os
 import pathlib
 from pathlib import Path
+import sys
 
 
 def child_containing_matching_f(root, ext=('opus', 'ogg', 'mp3', 'flac')):
@@ -29,4 +30,8 @@ def music_root(mpd_conf='~/.config/mpd/mpd.conf'):
 if __name__ == '__main__':
     d = child_containing_matching_f(Path(os.environ['RMUSIC_SOURCE'])
                                     if 'RMUSIC_SOURCE' in os.environ else music_root())
+    if d is None:
+        sys.exit(1)
+
+    assert d.exists()
     print(d)
