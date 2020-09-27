@@ -19,10 +19,10 @@ chmod u+x tiro
 tmux respawn-pane -t 1 -k  'while true; do RUST_BACKTRACE=1 ./tiro -w -p history -s history ; echo "bug, exited..." ; sleep 2; done'
 
 # tmux respawn-pane -t bottom-right -k "todo_watch t Y ${PLANTODO_FLAG:-}"
-tmux respawn-pane -t 2 -k "todo_watch t Y ${PLANTODO_FLAG:-}"
+tmux respawn-pane -t 2 -k "todo_watch t Z ${PLANTODO_FLAG:-}"
 
 
 # could remove parts of these -c and put e.g. in vimrc
 # XXX: try small tw
-vi -c 'set filetype=tiro' -c 'set tw=50' -c 'set commentstring=#\ %s' -c ':n' -c ':bp' activities.txt $MOBILE_DIR_WORK/0_planning/activities.txt
+vi -n -c 'set filetype=tiro' -c 'set tw=50' -c 'set commentstring=#\ %s' -c ':n' -c ':bp' activities.txt $MOBILE_DIR_WORK/0_planning/activities.txt
 tmux kill-window
