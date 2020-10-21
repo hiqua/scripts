@@ -28,8 +28,12 @@ def music_root(mpd_conf='~/.config/mpd/mpd.conf'):
 
 
 if __name__ == '__main__':
+    # TODO: use several sources with priorities
     d = child_containing_matching_f(Path(os.environ['RMUSIC_SOURCE'])
                                     if 'RMUSIC_SOURCE' in os.environ else music_root())
+    if d is None:
+        d = child_containing_matching_f(music_root())
+
     if d is None:
         sys.exit(1)
 

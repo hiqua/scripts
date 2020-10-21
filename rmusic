@@ -1,9 +1,9 @@
 #!/bin/bash
 {
-set -e
-set -u
+  set -e
+  set -u
 
-LIMIT="40"
+  LIMIT="20"
 
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
