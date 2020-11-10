@@ -3,13 +3,14 @@
   set -e
   set -u
 
-  LIMIT="20"
+  LIMIT="10"
 
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
 tgt_opus="$MOBILE_MUSIC/opus"
 tgt_flac="$MOBILE_MUSIC/flac"
 
+# delete the folders in opus that are no longer in flac
 find "$tgt_opus" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -d '' -r folder; do
 if [ ! -d "$tgt_flac"/"$(basename "$folder")" ]; then
   trash "$folder"
