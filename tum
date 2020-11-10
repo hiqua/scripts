@@ -6,3 +6,5 @@ tmux select-pane -L
 tmux respawn-pane -t top-right -k todo_watch t Z @email
 tmux new-window -d 'checkmail'
 mutt
+checkmail
+exit
