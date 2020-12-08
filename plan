@@ -14,7 +14,7 @@ tmux select-pane -L
 
 tmux resize-pane -t 1 -x 56
 
-tmux respawn-pane -t 1 -k  'while true; do RUST_BACKTRACE=1 tiro -w -p history -s history ; echo "bug, exited..." ; sleep 2; done'
+tmux respawn-pane -t 1 -k  'while true; do RUST_BACKTRACE=1 tiro -n -w -p history -s history ; echo "bug, exited..." ; sleep 2; done'
 
 # tmux respawn-pane -t bottom-right -k "todo_watch t Y ${PLANTODO_FLAG:-}"
 tmux respawn-pane -t 2 -k "todo_watch t Z ${PLANTODO_FLAG:-}"
