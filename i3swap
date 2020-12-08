@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import subprocess
 import json
-from pprint import pprint
 
 """
 Ideas:
@@ -9,28 +8,49 @@ Ideas:
 """
 
 
+def current_workspace(d):
+    for s in d:
+        if s['focused']:
+            return s['name']
+
+
+def switch_workspaces(ws1, ws2):
+    subprocess.run(
+        ['i3-msg',  f"rename workspace {ws2} to temporary; rename workspace {ws1} to {ws2}; rename workspace temporary to {ws1}"])
+
+
+def swap_workspace_with_main(ws):
+    if ws < 10:
+        target = 1
+    else:
+        target = 11
+
+    switch_workspaces(ws, target)
+
+
+def swap_both_workspaces_with_mains(ws):
+    swap_workspace_with_main(ws)
+    swap_workspace_with_main(ws + 10 % 20)
+
+
 def swap():
     out = subprocess.check_output(['i3-msg', '-t', 'get_workspaces'],
                                   encoding='utf-8')
 
-    current = None
     d = json.loads(out)
-    for s in d:
-        if s['focused']:
-            current = s['name']
+
+    current = current_workspace(d)
 
     if current is None or current == '1' or current == '10':
         print("failed")
         return
 
-    if int(current) < 10:
-        target = 1
-    else:
-        target = 10
+    current = int(current)
 
-    subprocess.run(
-        ['i3-msg',  f"rename workspace {target} to temporary; rename workspace {current} to {target}; rename workspace temporary to {current}"])
+    swap_workspace_with_main(current)
+
     subprocess.run(["i3-msg", f"workspace {current}"])
 
 
-swap()
+if __name__ == '__main__':
+    swap()
