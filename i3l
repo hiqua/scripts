@@ -13,4 +13,11 @@ EOF
 
 
 i3lock -c "$color"
+(
+xinput --set-prop 14 'Device Enabled' 0
 xset dpms force off
+while pgrep i3lock ; do
+  sleep 1
+done
+xinput --set-prop 14 'Device Enabled' 1
+) &
