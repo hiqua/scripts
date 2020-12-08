@@ -3,10 +3,12 @@
   set -e
   set -u
 
-  LIMIT="10"
 
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
+
+  RMUSIC_LIMIT="${RMUSIC_LIMIT:-10}"
+
 tgt_opus="$MOBILE_MUSIC/opus"
 tgt_flac="$MOBILE_MUSIC/flac"
 
@@ -18,7 +20,7 @@ fi
 done
 
 
-for ((i=1; i<=LIMIT; i++ )); do
+for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
   set +e
   p="$("$HOME"/.local/bin/rmusic.py)"
   if [ "$?" -eq 1 ]; then
@@ -28,7 +30,7 @@ for ((i=1; i<=LIMIT; i++ )); do
   set -e
   folder_number="$(find "$tgt_flac" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
 
-  if [ "$folder_number" -ge "$LIMIT" ]; then
+  if [ "$folder_number" -ge "$RMUSIC_LIMIT" ]; then
     exit 0
   fi
 
