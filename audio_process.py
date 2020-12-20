@@ -4,6 +4,7 @@
 # run replaygain
 # TODO
 # check that the track numbers are consecutive and unique
+import fnmatch
 import os
 import re
 import shutil
@@ -66,12 +67,19 @@ def clean_files():
                 except shutil.Error:
                     f.unlink()
 
+def rename_cue_files():
+    root = Path('.')
+    for d in child_containing_matching_f(root):
+        # XXX: should be case insensitive...
+        for f in d.rglob('*.cue'):
+            new_path = f.parent.absolute() / (f.name + '.ignore')
+            f.rename(new_path)
+
 
 def get_artist_name_from_folder_name(s):
     pattern = re.compile(
         r"(?P<artist>.*) - (.*) \((?P<year>\d{4})\)")
     match = pattern.match(s)
-
     if match:
         return match.group("artist")
 
@@ -128,5 +136,7 @@ if __name__ == '__main__':
 
     move_to_artist_folder()
     clean_files()
+
+    rename_cue_files()
 
     compute_replay_gain()
