@@ -1,7 +1,10 @@
 #!/bin/sh
 set -e
 set -u
-color="$(python3 - <<EOF
+
+
+if [ "${I3L_COLOR:-x}" = "x" ]; then
+  color="$(python3 - <<EOF
 import random
 import socket
 
@@ -10,6 +13,9 @@ hexa = '0123456789abcdef'
 print(''.join(random.choice(hexa) for _ in range(6)))
 EOF
 )"
+else
+  color="$I3L_COLOR"
+fi
 
 
 i3lock -c "$color"
