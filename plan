@@ -3,6 +3,10 @@ set -e
 set -u
 cd "$MOBILE_DIR"/0_planning || exit 2
 
+if [ -d "$MOBILE_DIR"/notes ]; then
+  tmux new-window -d -c "$MOBILE_DIR"/notes
+fi
+
 # create panes
 tmux split-window -h # -p 66
 tmux split-window -h # -p 61

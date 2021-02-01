@@ -1,7 +1,7 @@
 #!/bin/bash
+# bash to use $RANDOM
 set -e
 set -u
-#bash to use $RANDOM 
 fraction=4
 prefix="#"
 
