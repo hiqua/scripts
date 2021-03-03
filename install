@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 set -u
+if [ "$#" != "1" ]; then
+  echo "Usage: $0 DIRECTORY"
+  exit 1
+fi
 DIRECTORY="$1"
 
 LINK_CMD="ln -i -s"
@@ -31,13 +35,16 @@ cd "$(dirname "$0")"
 #   exit 1
 # fi
 echo "Install in $DIRECTORY:"
-echo "Continue?"
+echo "Continue? [Y]"
 read -r _
 mkdir -p "$DIRECTORY"
 
-for f in *; do
+for f in **/*; do
+  echo "$f"
   if [ ! "$f" = "$(basename "$0")" ] && [ -x "$f" ] ; then
-    safe_link "$(pwd)/$f" "$DIRECTORY/$f"
+    safe_link "$(realpath $f)" "$DIRECTORY/$(basename $f)"
+  else
+    printf "Not installing %s\n" "$f"
   fi
 done
 

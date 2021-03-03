@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import subprocess
+import pathlib
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', action='append', default=())
+    parser.add_argument('-p', default='.', type=pathlib.Path)
+
+    ARGS = parser.parse_args()
+
+    uid = os.getuid()
+    gid = os.getgid()
+    BUILD_ARGS = ['--build-arg ' + v for v in ARGS.v]
+
+    PROJECT_DIR = ARGS.p.resolve()
+
+    SCRIPT_FOLDER = pathlib.Path(__file__).resolve().parent
+
+    build_cmd = ['docker', 'build', '--build-arg', f'UID={uid}', '--build-arg',
+                 f'GID={gid}', SCRIPT_FOLDER, '-t', 'sb'] + BUILD_ARGS
+    subprocess.run(build_cmd)
+
+    cmd = ['docker', 'run', '-i', '-t',  '-v',
+           f'{PROJECT_DIR}:/home/sb/mounted', 'sb', 'zsh']
+
+    subprocess.run(cmd)
