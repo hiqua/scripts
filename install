@@ -39,10 +39,10 @@ echo "Continue? [Y]"
 read -r _
 mkdir -p "$DIRECTORY"
 
-for f in **/*; do
+find . -type f -executable | while read -r f; do
   echo "$f"
   if [ ! "$f" = "$(basename "$0")" ] && [ -x "$f" ] ; then
-    safe_link "$(realpath $f)" "$DIRECTORY/$(basename $f)"
+    safe_link "$(realpath "$f")" "$DIRECTORY/$(basename "$f")"
   else
     printf "Not installing %s\n" "$f"
   fi
