@@ -11,7 +11,7 @@ early evening til morning: low
 LOW_TEMP = 2500
 HIGH_TEMP = 7500
 morningh = 7
-midafterh = 15
+midafterh = 14
 eveningh = 20
 
 def set_temperature(t):
@@ -21,11 +21,12 @@ def set_temperature(t):
 def compute_temperature():
     tm = localtime()
     hour = tm.tm_hour
+    minutes = tm.tm_min
 
     if morningh <= hour < midafterh:
         temp = HIGH_TEMP
     elif midafterh <= hour < eveningh:
-        temp = HIGH_TEMP - (hour - midafterh) / (eveningh - midafterh) * (HIGH_TEMP - LOW_TEMP)
+        temp = HIGH_TEMP - (hour + minutes / 60 - midafterh) / (eveningh - midafterh) * (HIGH_TEMP - LOW_TEMP)
     else:
         temp = LOW_TEMP
 
