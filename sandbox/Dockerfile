@@ -1,51 +1,56 @@
 FROM debian:bullseye
 
-# TODO: hardcoded guid uid
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y\
+      apt-utils\
       curl\
       fd-find\
       git\
+      ipython3\
+      locales-all\
+      locales\
       neovim\
       nodejs\
       openjdk-11-jdk\ 
+      pipenv\
       ripgrep\
       sudo\
       tmux\
       wget\
-      zsh\
-      zip
+      zip\
+      zsh
+
+# To test systemd feature
+# Need to install it later to avoid some packages using it wrongly
+RUN apt-get update && apt-get install -y systemctl
 
 ARG user="sb"
-ARG UID
-ARG GID
+ARG UID="1000"
+ARG GID="1000"
 
 RUN addgroup --gid $GID somegroup
 RUN adduser --uid $UID --gid $GID --gecos "" --disabled-password $user 
-
 RUN printf '%%sudo	ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
-
 RUN adduser $user sudo
-
 RUN touch /var/lib/sudo/lectured/$user
 
 COPY custom.sh /home/$user/custom.sh
-
 RUN chown $UID:$GID /home/$user/custom.sh
 
 USER $user
 
+ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
 
-# COPY --chown=$UID:$GID custom.sh /home/$user/custom.sh
-
-
-RUN chmod u+x /home/$user/custom.sh && /home/$user/custom.sh
+RUN chmod +x /home/$user/custom.sh && /home/$user/custom.sh
 
 RUN sudo chsh -s /bin/zsh $user
 
 WORKDIR /home/$user/mounted
 
-CMD [ "tail" ,"-f", "/dev/null" ]
+ENV DEBIAN_FRONTEND=
 
-# ENTRYPOINT ["/bin/zsh"]
+
+CMD [ "tail" ,"-f", "/dev/null" ]
