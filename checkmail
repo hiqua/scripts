@@ -15,10 +15,6 @@ email_sync(){
   imapfilter >> "$LOG" || return "$?"
   mbsync -q -c "${XDG_CONFIG_HOME:-$HOME/.config}"/mbsync/mbsyncrc -a >> "$LOG" || return "$?"
 
-# For notmuch
-. "$ZDOTDIR"/10_globals.zsh
-. "$ZDOTDIR"/11_locals.zsh
-
 # cat to avoid non-zero return value from grep
 notmuch new -q 2>&1 >/dev/null |\
   grep -v "Note: Ignoring non-mail file:" |\
@@ -26,4 +22,4 @@ notmuch new -q 2>&1 >/dev/null |\
 }
 
 # retry in case of failures, and ignore errors
-email_sync 2>/dev/null || email_sync 2>/dev/null
+email_sync || email_sync
