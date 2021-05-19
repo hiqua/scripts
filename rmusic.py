@@ -18,6 +18,8 @@ def child_containing_matching_f(root, ext=('opus', 'ogg', 'mp3', 'flac')):
 
 
 def music_root(mpd_conf='~/.config/mpd/mpd.conf'):
+    """Meant to be used to copy regular music, but too slow with NFS
+    """
     with open(Path(mpd_conf).expanduser()) as fs:
         for l in fs:
             if l.startswith('music_directory'):
@@ -28,14 +30,12 @@ def music_root(mpd_conf='~/.config/mpd/mpd.conf'):
 
 
 if __name__ == '__main__':
-    # TODO: use several sources with priorities
-    d = child_containing_matching_f(Path(os.environ['RMUSIC_SOURCE'])
-                                    if 'RMUSIC_SOURCE' in os.environ else music_root())
-    if d is None:
-        d = child_containing_matching_f(music_root())
+    rmusic_sources = sys.argv[1:]
+    d = None
+    for source in rmusic_sources:
+        d = d or child_containing_matching_f(Path(source))
 
-    if d is None:
+    if d is None or not d.exists():
         sys.exit(1)
 
-    assert d.exists()
     print(d)

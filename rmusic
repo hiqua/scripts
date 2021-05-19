@@ -1,4 +1,8 @@
 #!/bin/bash
+# Move music folders regularly to target, both to opus and flac directory.
+# Meant for music I haven't listened to yet, to see if I should keep it or not.
+
+
 {
   set -e
   set -u
@@ -7,7 +11,10 @@
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
 
-  RMUSIC_LIMIT="${RMUSIC_LIMIT:-10}"
+# for sources
+. "${ZDOTDIR:-$HOME/.config/zsh}"/14_locals_bash.zsh
+
+RMUSIC_LIMIT="${RMUSIC_LIMIT:-10}"
 
 tgt_opus="$MOBILE_MUSIC/opus"
 tgt_flac="$MOBILE_MUSIC/flac"
@@ -22,7 +29,7 @@ done
 
 for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
   set +e
-  p="$("$HOME"/.local/bin/rmusic.py)"
+  p="$("$HOME"/.local/bin/rmusic.py "${RMUSIC_SOURCES[@]}")"
   if [ "$?" -eq 1 ]; then
     # no folder
     exit 0
@@ -31,7 +38,7 @@ for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
   folder_number="$(find "$tgt_flac" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
 
   if [ "$folder_number" -ge "$RMUSIC_LIMIT" ]; then
-    exit 0
+    break
   fi
 
 
@@ -43,4 +50,6 @@ for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
   mv -n "$p" "$tgt_flac"
 
 done
+
+find "$tgt_opus" -type f -iname '*.flac' -print0 | xargs -0 -r parallel --nice 19 -j 2 "ffmpeg -y -i {} -b:a 96k {.}.opus && rm {}" :::
 }
