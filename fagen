@@ -17,6 +17,6 @@ secret="$(secret-tool lookup type 2fa name $name)"
 code="$(oathtool -b --totp "$secret")"
 
 echo "$code"
-echo "$code" | xclip
 
-
+# exits if failure with xclip (called outside of X)
+echo "$code" | timeout 1 xclip || true
