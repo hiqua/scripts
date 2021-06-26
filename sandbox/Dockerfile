@@ -2,6 +2,8 @@ FROM debian:bullseye
 
 ENV DEBIAN_FRONTEND noninteractive
 
+COPY sources.list /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y\
       apt-utils\
       curl\
@@ -17,6 +19,7 @@ RUN apt-get update && apt-get install -y\
       ripgrep\
       sudo\
       tmux\
+      unrar\
       wget\
       zip\
       zsh
