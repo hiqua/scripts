@@ -32,7 +32,7 @@ for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
   p="$("$HOME"/.local/bin/rmusic.py "${RMUSIC_SOURCES[@]}")"
   if [ "$?" -eq 1 ]; then
     # no folder
-    exit 0
+    break
   fi
   set -e
   folder_number="$(find "$tgt_flac" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
