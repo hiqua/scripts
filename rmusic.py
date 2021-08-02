@@ -6,12 +6,17 @@ from pathlib import Path
 import sys
 
 
-def child_containing_matching_f(root, ext=('opus', 'ogg', 'mp3', 'flac')):
+def child_containing_matching_f(root, ext=('opus', 'ogg', 'mp3',
+'flac'),not_ext=('!qB',)):
+    """Find child containg files with given ext, but not not_ext
+    """
     # only compressed files
     candidates = []
     for x in ext:
         candidates.extend(c.parent for c in root.rglob('*.' + x)
                           if c.parent.name != '+')
+    for x in not_ext:
+        candidates = [c for c in candidates if not list(c.rglob('*.' + x))]
     candidates = list(set(candidates))
     if candidates:
         return random.choice(candidates)
