@@ -1,12 +1,17 @@
 #!/bin/bash
 # Move music folders regularly to target, both to opus and flac directory.
 # Meant for music I haven't listened to yet, to see if I should keep it or not.
+# TODO: get rid of bash, rewrite in python
+
 
 
 {
   set -e
   set -u
 
+
+# MPD config for rmusic2.py
+. "${ZDOTDIR:-$HOME/.config/zsh}"/10_globals.zsh
 
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
@@ -18,21 +23,56 @@ RMUSIC_LIMIT="${RMUSIC_LIMIT:-10}"
 
 tgt_opus="$MOBILE_MUSIC/opus"
 tgt_flac="$MOBILE_MUSIC/flac"
+mkdir -p "$tgt_opus"
+mkdir -p "$tgt_flac"
 
-# delete the folders in opus that are no longer in flac
-find "$tgt_opus" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -d '' -r folder; do
-if [ ! -d "$tgt_flac"/"$(basename "$folder")" ]; then
-  trash "$folder"
-fi
-done
+convert_to_opus(){
+  # ffmpeg loglevel 24: only warnings
+  find "$tgt_opus" -type f -iname '*.flac' -print0 | xargs -0 -r parallel --nice 19 -j 2 "ffmpeg -loglevel 24 -y -i {} -b:a 96k {.}.opus && rm {}" :::
+}
 
+space_taken(){
+  # compute the space taken by the opus folder
+  du -BM -s "$tgt_opus"  | awk '{gsub("M", "") ; print $1}'
+}
+
+delete_folders_not_in_other(){
+  # delete the folders in $replica that are no longer in $origin
+  origin="$1"
+  replica="$2"
+  find "$replica" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -d '' -r folder; do
+    if [ ! -d "$origin"/"$(basename "$folder")" ]; then
+      trash "$folder"
+    fi
+  done
+}
+
+
+
+# delete the folders in opus that are no longer in flac...
+delete_folders_not_in_other "$tgt_flac" "$tgt_opus"
+# ...and vice-versa
+delete_folders_not_in_other "$tgt_opus" "$tgt_flac"
 
 for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
+  taken="$(space_taken)"
+  if [ "$taken" -ge 1000 ]; then
+    break
+  fi
+  # otherwise, exits from rmusic{,2}.py. Better way?
   set +e
   p="$("$HOME"/.local/bin/rmusic.py "${RMUSIC_SOURCES[@]}")"
-  if [ "$?" -eq 1 ]; then
-    # no folder
-    break
+  if [ "$?" -ne 0 ]; then
+    # no folder from first script
+    # trying to use permanent sources, don't try to move the folder
+    move="false"
+    p="$("$HOME"/.local/bin/rmusic2.py)"
+    if [ "$?" -ne 0 ]; then
+      break
+    fi
+
+  else
+    move="true"
   fi
   set -e
   folder_number="$(find "$tgt_flac" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
@@ -41,15 +81,20 @@ for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
     break
   fi
 
-
-  mkdir -p "$tgt_opus"
   cp -r -n "$p" "$tgt_opus"
 
   printf "%s" "$p" >> "$tgt_opus"/"$(basename "$p")"/rmusic_path
 
-  mv -n "$p" "$tgt_flac"
+  if [ "$move" = "true" ]; then
+    mv -n "$p" "$tgt_flac"
+  else
+    cp -r -n "$p" "$tgt_flac"
+  fi
 
+  find "$tgt_opus" -iname '+' -type d -prune -exec trash '{}' \;
+
+  convert_to_opus > /dev/null
 done
 
-find "$tgt_opus" -type f -iname '*.flac' -print0 | xargs -0 -r parallel --nice 19 -j 2 "ffmpeg -y -i {} -b:a 96k {.}.opus && rm {}" :::
+convert_to_opus
 }
