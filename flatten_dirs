@@ -1,0 +1,12 @@
+#!/bin/bash
+# Take children of every folder at current level, and move them to the current level.
+set -e
+set -u
+set -o pipefail
+shopt -s nullglob
+
+find . -mindepth 1 -maxdepth 1 -type d | while read -r dir ; do
+  for f in "$dir"/*; do
+    mv -n "$f" "$dir"_"$(basename "$f")"
+  done
+done
