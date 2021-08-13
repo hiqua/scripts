@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e
+set -u
+{
+random_directory(){
+  # Print a random subdirectory of a given directory.
+  if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 DIRECTORY"
+    return 1
+  fi
+
+  (
+  cd "$1" || return 2
+  folder="$(python3 - <<EOF
+import random
+import pathlib
+import sys
+
+cwd = pathlib.PosixPath('.')
+candidates = [f for f in cwd.iterdir() if f.is_dir()]
+if candidates:
+  print(random.choice(candidates))
+else:
+  print('no folder')
+  sys.exit(1)
+EOF
+)"
+
+  if [ "$?" -ne 0 ]; then
+    echo "No subfolder."
+    return 3
+  fi
+
+
+  folder="$1/$folder"
+
+  printf "%s\n" "$folder"
+  )
+}
+
+random_directory "$@"
+
+}
