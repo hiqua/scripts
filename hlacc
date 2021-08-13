@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+set -u
+# unfortunately, also fails if a transaction is unbalanced
+hledger -I account | awk '{print $0,"  "}'
