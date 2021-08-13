@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+set -u
+set -o pipefail
+find "$1" -type f -iname '*.flac' -print0 | xargs -0 -r parallel --nice 19 -j 2 "ffmpeg -y -i {} -b:a 96k {.}.opus && rm {}" :::
