@@ -19,6 +19,12 @@ email_sync(){
 notmuch new -q 2>&1 >/dev/null |\
   grep -v "Note: Ignoring non-mail file:" |\
   cat >> "$LOG"
+  url="$KINDLE_URL_PATTERN"
+  (cd "$HOME"/.mail/cayl/Inbox/new && find . -type f -exec grep -h "$url" '{}' \; |\
+    while read -r link ; do
+      curl -s -o /dev/null "$link"
+    done
+  )
 }
 
 # retry in case of failures, and ignore errors
