@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+set -u
+remote="1.1.1.1"
+delay=10
+threshold=25
+
+average_ping(){
+  host="$@"
+  ping -w "$((delay + 2))" -q -c "$delay" "$host" || true
+}
+
+while true; do
+  ip="$(ip route show default | head -n 1 | awk '{print $3}')"
+  while true; do
+    ping_output="$(average_ping $remote)"
+    avg="$(printf "%s\n" "$ping_output" | awk 'BEGIN{FS="/"} /rtt min\/avg\/max\/mdev =/ {printf "%.0f\n", $5}')"
+    if [ -z "$avg" ] || [ "$avg" -ge "$threshold" ]; then
+      notify-send -t "$delay"000 'BAD LATENCY!' "$ping_output"
+      break
+    fi
+    sleep 10
+  done
+done
