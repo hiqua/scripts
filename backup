@@ -9,5 +9,6 @@ DATETAG="$(date +%F_%s)"
 
 # Use sudo to allow to run as root if need be. Also works if already logged in.
 sudo -i -u hiq cp "$MOBILE_DIR"/keepass/keepass_bdd.kdbx "$LOCAL_BACKUP"/keepass/keepass_bdd_"$DATETAG".kdbx
-sudo -i -u hiq cp -r "$TODO_GLOBAL" "$LOCAL_BACKUP"/TODO/TODO_"$DATETAG"
 sudo -i -u hiq cp -r "$MOBILE_DIR"/calcurse  "$LOCAL_BACKUP"/calcurse/calcurse_"$DATETAG"
+crontab -l > "$MOBILE_DIR"/config/crontab/crontab
+cp "$XDG_CONFIG_HOME/anacron/anacrontab" "$MOBILE_DIR"/config/crontab
