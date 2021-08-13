@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+if [ -f "$ZDOTDIR"/11_locals.zsh ]; then
+  . "$ZDOTDIR"/11_locals.zsh
+  find "$MOBILE_DIR"/msgs -type f -size +0 -exec notify-send "check msgs" \;
+  find "$MOBILE_DIR_WORK"/msgs -type f -size +0 -exec notify-send "check msgs (work)" \;
+fi
+
+if ! pgrep -x signal-desktop ; then
+  timeout 60 signal-desktop --start-in-tray &
+fi
+
+signal-desktop-beta "$@"
