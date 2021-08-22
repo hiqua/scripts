@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+set -u
+site="example.com"
+count=40
+ping -c "$count" "$site" 2>&1 | awk '
+/packet loss/ && substr($6, 0, length($6)-1) > 90 { exit 1 }
+/Name or service not known/ {exit 1}
+'
