@@ -9,4 +9,6 @@ if ! pgrep -x signal-desktop ; then
   timeout 60 signal-desktop --start-in-tray &
 fi
 
-signal-desktop-beta "$@"
+if ! pgrep -x signal-desktop-beta ; then
+  signal-desktop-beta "$@"
+fi
