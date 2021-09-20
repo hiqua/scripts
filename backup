@@ -4,6 +4,7 @@ set -u
 
 # shellcheck source=/dev/null
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
+. "${ZDOTDIR:-$HOME/.config/zsh}"/10_globals.zsh
 
 DATETAG="$(date +%F_%s)"
 
