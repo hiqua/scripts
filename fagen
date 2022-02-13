@@ -16,6 +16,7 @@ secret="$(secret-tool lookup type 2fa name $name)"
 
 code="$(oathtool -b --totp "$secret")"
 
+echo "Putting it in clipboard"
 echo "$code"
 
 # exits if failure with xclip (called outside of X)
