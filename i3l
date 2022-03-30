@@ -2,6 +2,12 @@
 set -e
 set -u
 
+if [ -f "$CUSTOM_LOCK" ]; then
+  $CUSTOM_LOCK
+  exit 0
+fi
+
+
 
 if [ "${I3L_COLOR:-x}" = "x" ]; then
   color="$(python3 - <<EOF
