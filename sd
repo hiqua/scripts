@@ -5,10 +5,7 @@ if [ -f "$ZDOTDIR"/11_locals.zsh ]; then
   find "$MOBILE_DIR_WORK"/msgs -type f -size +0 -exec notify-send "check msgs (work)" \;
 fi
 
-if ! pgrep -x signal-desktop ; then
+if ! ps aux|grep '[s]ignal-desktop' ; then
   timeout 60 signal-desktop --start-in-tray &
-fi
-
-if ! pgrep -x signal-desktop-beta ; then
   signal-desktop-beta "$@"
 fi
