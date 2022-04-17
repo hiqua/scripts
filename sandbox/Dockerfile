@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y\
       apt-utils\
       curl\
       fd-find\
+      gdebi\
       git\
       ipython3\
       locales-all\
@@ -16,7 +17,10 @@ RUN apt-get update && apt-get install -y\
       nodejs\
       openjdk-11-jdk\ 
       pipenv\
+      python3\
+      python3-pip\
       ripgrep\
+      ssh\
       sudo\
       tmux\
       unrar\
