@@ -2,7 +2,9 @@
 if [ -f "$ZDOTDIR"/11_locals.zsh ]; then
   . "$ZDOTDIR"/11_locals.zsh
   find "$MOBILE_DIR"/msgs -type f -size +0 -exec notify-send "check msgs" \;
-  find "$MOBILE_DIR_WORK"/msgs -type f -size +0 -exec notify-send "check msgs (work)" \;
+  if [ -d "$MOBILE_DIR_WORK"/msgs ]; then
+    find "$MOBILE_DIR_WORK"/msgs -type f -size +0 -exec notify-send "check msgs (work)" \;
+  fi
 fi
 
 if ! ps aux|grep '[s]ignal-desktop' ; then
