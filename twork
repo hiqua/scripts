@@ -1,0 +1,4 @@
+#!/bin/sh
+export TODO_GLOBAL="$TODO_GLOBAL_WORK"
+var="main" todo-txt -d "$TODO_GLOBAL"/config "$@"
+
