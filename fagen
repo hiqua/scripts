@@ -21,3 +21,7 @@ echo "$code"
 
 # exits if failure with xclip (called outside of X)
 echo "$code" | timeout 1 xclip || true
+
+# timeout to deal with xclip hanging in some cases
+timeout 1 xclip -selection primary -out | timeout 1 xclip -selection clipboard
+
