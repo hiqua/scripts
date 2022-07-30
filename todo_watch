@@ -39,7 +39,10 @@ twatch(){
 
     # shellcheck disable=SC2068
     $tcmd lsp A-"$TODOWATCH_LASTPRIO" $@ | grep -v '[[:digit:]][[:digit:]] x'
-    inotifywait -qq -e create,modify "$TODO_GLOBAL"/* > /dev/null
+    # timeout to refresh periodically (useful when screen size changes), --foreground to kill via CTRL-C faster.
+    timeout --foreground 120 inotifywait -qq -e create,modify "$TODO_GLOBAL"/* > /dev/null
+
+
   done
 }
 
