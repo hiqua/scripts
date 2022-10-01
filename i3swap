@@ -1,55 +1,71 @@
 #!/usr/bin/env python3
+import functools
 import subprocess
 import json
 
 """
 Ideas:
     * swap on both displays (1 matches 11, etc.)
+
 """
 
+@functools.cache
+def get_workspaces():
+    return json.loads(subprocess.check_output(['i3-msg', '-t', 'get_workspaces'],
+                                  encoding='utf-8'))
 
-def current_workspace(d):
+def focus_workspace(num):
+    subprocess.run(["i3-msg", f"workspace number {num}"])
+
+def current_workspace():
+    d = get_workspaces()
     for s in d:
         if s['focused']:
-            return s['name']
+            return s['num'], s['name']
+
+def main_workspace(d, reference_ws_num, target=1):
+    # TODO: doesn't really work on secondary screen (10+ ws). Unused anyway?
+    # if reference_ws_num < 10:
+    #     target = 1
+    # else:
+    #     target = 11
+    for s in d:
+        if s['num'] == target:
+            return s['num'], s['name']
+
+    return target, str(target)
 
 
 def switch_workspaces(ws1, ws2):
+    """Arguments are pairs (num, name)
+    """
+    print(ws1)
+    print(ws2)
+    num1, name1 = ws1
+    num2, name2 = ws2
+    new_name1 = f'{num2}:{extract_name_prefix(name1)}'.removesuffix(':')
+    new_name2 = f'{num1}:{extract_name_prefix(name2)}'.removesuffix(':')
+    print(['i3-msg',  f"rename workspace {name1} to temporary; rename workspace {name2} to {new_name2}; rename workspace temporary to {new_name1}"])
     subprocess.run(
-        ['i3-msg',  f"rename workspace {ws2} to temporary; rename workspace {ws1} to {ws2}; rename workspace temporary to {ws1}"])
+        ['i3-msg',  f"rename workspace {name1} to temporary; rename workspace {name2} to {new_name2}; rename workspace temporary to {new_name1}"])
 
-
-def swap_workspace_with_main(ws):
-    if ws < 10:
-        target = 1
+def extract_name_prefix(name):
+    split = name.split(':')
+    if len(split) > 1:
+        return split[1].strip()
     else:
-        target = 11
+        return ''
 
-    switch_workspaces(ws, target)
-
-
-def swap_both_workspaces_with_mains(ws):
-    swap_workspace_with_main(ws)
-    swap_workspace_with_main(ws + 10 % 20)
+def swap_current_workspace_with_main():
+    d = get_workspaces()
+    current_ws = current_workspace()
+    switch_workspaces(current_ws, main_workspace(d, current_ws[0]))
 
 
 def swap():
-    out = subprocess.check_output(['i3-msg', '-t', 'get_workspaces'],
-                                  encoding='utf-8')
-
-    d = json.loads(out)
-
-    current = current_workspace(d)
-
-    if current is None or current == '1' or current == '10':
-        print("failed")
-        return
-
-    current = int(current)
-
-    swap_workspace_with_main(current)
-
-    subprocess.run(["i3-msg", f"workspace {current}"])
+    current_num, _ = current_workspace()
+    swap_current_workspace_with_main()
+    focus_workspace(current_num)
 
 
 if __name__ == '__main__':
