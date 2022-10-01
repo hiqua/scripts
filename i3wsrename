@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""
+Rename the current workspace according to user's answer to a GUI prompt.
+
+Requirements:
+sudo apt install zenity
+
+"""
+import subprocess
+import json
+from functools import cache
+
+@cache
+def current_workspace():
+    d = json.loads(subprocess.check_output(['i3-msg', '-t', 'get_workspaces'],
+                                  encoding='utf-8'))
+    for s in d:
+        if s['focused']:
+            return s['num'], s['name']
+
+    raise KeyError('Could not find currently focused workspace.')
+
+
+def rename(old_name, new_name):
+    subprocess.run(
+            ['i3-msg',  f'rename workspace {old_name} to {new_name}'])
+
+
+def get_desired_name():
+    """Prompts the user for the desired ws name, and prepend the ws number.
+    """
+    num, _ = current_workspace()
+    name = subprocess.check_output(["zenity", "--entry", "--width", "500" ,"--title",
+        "Workspace name" , "--text", "Enter the desired workspace name"],
+        encoding='utf-8')
+    new_name = f'{num}:{name}'.strip().removesuffix(':')
+    return new_name
+
+
+def main():
+    _, curr_name = current_workspace()
+    new_name = get_desired_name()
+    rename(curr_name, new_name)
+
+
+if __name__ == '__main__':
+    main()
