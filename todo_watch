@@ -3,7 +3,13 @@
 # TODO: replace with python or something else
 # XXX: avoid exiting for bogus reasons?
 # set -e
+# set -x
 set -u
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage: $0 TODO_TXT_COMMAND MIN_PRIORITY [SEARCH_TERMS]"
+  exit 1
+fi
 
 . "$ZDOTDIR"/11_locals.zsh
 tcmd="$1"
