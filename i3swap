@@ -4,9 +4,8 @@ import subprocess
 import json
 
 """
-Ideas:
-    * swap on both displays (1 matches 11, etc.)
-
+Swap (secondary) workspaces with the "main" workspace (1 or 11), keeping their
+names.
 """
 
 @functools.cache
@@ -23,12 +22,8 @@ def current_workspace():
         if s['focused']:
             return s['num'], s['name']
 
-def main_workspace(d, reference_ws_num, target=1):
-    # TODO: doesn't really work on secondary screen (10+ ws). Unused anyway?
-    # if reference_ws_num < 10:
-    #     target = 1
-    # else:
-    #     target = 11
+def main_workspace(d, reference_ws_num):
+    target = 1 if reference_ws_num < 10 else 11
     for s in d:
         if s['num'] == target:
             return s['num'], s['name']
