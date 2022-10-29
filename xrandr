@@ -1,5 +1,0 @@
-#!/bin/sh
-set -e
-set -u
-"$(command xrandr | awk '{ if(NR==2) print }')" "$@"
-keynavc
