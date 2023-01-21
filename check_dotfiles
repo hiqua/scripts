@@ -1,42 +1,62 @@
 #!/bin/bash
-# Compare the list of dot files in $HOME with an allow list, and update the
-# list or delete the files.
+# Compare the list of dot files in $HOME with an allow list and a forbidden
+# list, and update the lists or delete the files. Make it faster to answer "do I
+# have all my dotfiles checked in?".
 set -e
 set -u
 
+REMOVE_LIST="${XDG_CONFIG_HOME:-$HOME}"/dotfiles.remove
 ALLOW_LIST="${XDG_CONFIG_HOME:-$HOME}"/dotfiles.allowed
+
 touch "$ALLOW_LIST"
+touch "$REMOVE_LIST"
 
-tmp="$(mktemp)"
-find "$HOME" -maxdepth 1 -name '\.*' | sort > "$tmp"
-need_update=""
-diff "$tmp" "$ALLOW_LIST" || need_update=y
+# Removing known forbidden files that keep reappearing.
+trash_forbidden(){
+  while read -r file; do
+    (trash "$file" 2>/dev/null && printf "Trashed %s\n" "$file...") || true
+  done < "$REMOVE_LIST"
+}
 
-if [ -n "$need_update" ]; then
-  select choice in "Update the allow list" "Remove forbidden dotfiles" "Do nothing"; do
-    case $choice in
-      "Update the allow list")
-        echo Updating the list.
-        mv "$tmp" "$ALLOW_LIST"
-        break
-        ;;
-      "Remove forbidden dotfiles")
-        echo Trashing forbidden dotfiles:
-        while read -r file ; do
-          if ! grep -q "$file" "$ALLOW_LIST"; then
-            printf "%s\n" "$file"
-            trash "$file"
-          fi
-        done < "$tmp"
-        break
-        ;;
-      *)
-        echo "$choice"
-        echo Doing nothing.
-        break
-        ;;
-    esac
-  done
-else
-  echo "Home folder compliant, nothing to do."
+trash_forbidden
+
+
+file="/home/hiq/.FBReader"
+find "$HOME" -maxdepth 1 -name '\.*' | sort | while read -r file ; do
+
+if  grep -q "$file" "$ALLOW_LIST"; then
+  continue
 fi
+
+if  grep -q "$file" "$REMOVE_LIST"; then
+  continue
+fi
+
+printf "File: %s not in any list\n" "$file"
+
+# Subshell required to make the select compatible with the while loop.
+(
+select choice in "Add to allow list" "Add to remove list" "Do nothing"; do
+  case $choice in
+    "Add to allow list")
+      echo "Add to allow list."
+      printf "%s\n" "$file" >> "$ALLOW_LIST"
+      break
+      ;;
+    "Add to remove list")
+      echo "Add to remove list."
+      printf "%s\n" "$file" >> "$REMOVE_LIST"
+      break
+      ;;
+    *)
+      echo "$choice"
+      echo Doing nothing.
+      break
+      ;;
+  esac
+done
+) < /dev/tty
+done
+
+# To remove files added to remove list in the meantime.
+trash_forbidden
