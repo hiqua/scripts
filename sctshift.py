@@ -15,7 +15,8 @@ HIGH_TEMP = 7500
 
 def set_temperature(t):
     command = ["sct", t]
-    subprocess.run(command)
+    display = os.environ.get('DISPLAY', ':1')
+    subprocess.run(command, env={'DISPLAY' : display})
 
 def compute_temperature(morningh, midafterh, eveningh):
     tm = localtime()
