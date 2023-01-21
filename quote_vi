@@ -1,0 +1,14 @@
+#!/bin/sh
+# Opens a temporary file containing primary selection prepended with '> ' with
+# vi, and copies the result into the clipboard.
+set -e
+set -u
+set -x
+dir="${USERTMP:-/tmp}"/quote_vi
+mkdir -p "$dir"
+file="$dir"/"$(date -Ins)"
+printf "%s\n" "$(xclip -r -selection primary -out)" | while read -r line ; do printf "> %s\n" "$line" >> "$file" ; done
+printf "\n\n" >> "$file"
+
+vi +$ "$file"
+cat "$file" | xclip -i -selection clipboard
