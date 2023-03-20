@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
-import functools
-import subprocess
-import json
-
 """
 Swap (secondary) workspaces with the "main" workspace (1 or 11), keeping their
 names.
 """
+import functools
+import subprocess
+import json
 
 @functools.cache
 def get_workspaces():
     return json.loads(subprocess.check_output(['i3-msg', '-t', 'get_workspaces'],
                                   encoding='utf-8'))
 
-def focus_workspace(num):
-    subprocess.run(["i3-msg", f"workspace number {num}"])
-
 def current_workspace():
     d = get_workspaces()
     for s in d:
         if s['focused']:
             return s['num'], s['name']
+
+def focus_workspace(num):
+    subprocess.run(["i3-msg", f"workspace number {num}"])
 
 def main_workspace(d, reference_ws_num):
     target = 1 if reference_ws_num < 10 else 11
