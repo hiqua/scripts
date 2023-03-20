@@ -4,7 +4,7 @@ import os
 
 from time import localtime
 """
-A simple wrapper around sct to compute the desired light temperature and set it.
+A simple wrapper around xsct to compute the desired light temperature and set it.
 
 From morning to mid afternoon: high
 mid afternoon to early evening: decrease linearly
@@ -14,7 +14,7 @@ LOW_TEMP = 2500
 HIGH_TEMP = 7500
 
 def set_temperature(t):
-    command = ["sct", t]
+    command = ["xsct", t]
     display = os.environ.get('DISPLAY', ':1')
     subprocess.run(command, env={'DISPLAY' : display})
 
