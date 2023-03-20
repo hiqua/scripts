@@ -1,0 +1,4 @@
+#!/bin/sh
+mkdir -p ~/.tmp
+touch ~/.tmp/time_log
+date -Iseconds >> ~/.tmp/time_log
