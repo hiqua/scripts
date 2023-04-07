@@ -1,0 +1,17 @@
+#!/bin/sh
+# age decrypt some file, extract the contained tar archive, and shred it on exit.
+set -e
+set -u
+dir="$(mktemp -d)"
+age_file="$1"
+filename="$(basename "$age_file")"
+tar_name="${filename%%\.age}"
+age -d -o "$dir"/"$tar_name" "$age_file"
+printf "Using directory: %s\n" "$dir"
+cd "$dir"
+tar xf "$tar_name"
+shred -u "$tar_name"
+echo "Will shred these files, continue? CTRL-C to abort."
+find "$dir" -type f
+read -r _
+find "$dir" -type f -exec shred -u '{}' \;
