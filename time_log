@@ -1,4 +1,5 @@
 #!/bin/sh
-mkdir -p ~/.tmp
-touch ~/.tmp/time_log
-date -Iseconds >> ~/.tmp/time_log
+FOLDER="${USERTMP:-~/.tmp}"
+mkdir -p "$FOLDER"
+touch "$FOLDER"/time_log
+date -Iseconds >> "$FOLDER"/time_log
