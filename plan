@@ -27,8 +27,9 @@ tmux respawn-pane -t 2 -k "todo_watch t Z ${PLANTODO_FLAG:-}"
 # could remove parts of these -c and put e.g. in vimrc
 # XXX: try small tw
 if [ -f "${MOBILE_DIR_WORK:-/tmp}/0_planning/activities.txt" ] ;then
-  vi -n -c 'autocmd TextChanged,TextChangedI <buffer> silent write' -c 'set filetype=tiro' -c 'set tw=80' -c 'set commentstring=#\ %s' -c ':n' -c ':bp' activities.txt $MOBILE_DIR_WORK/0_planning/activities.txt
+  # Can use -c 'set updatetime=1000'  to adjust auto-saving latency.
+  vi -n -c 'autocmd CursorHold * update' -c 'set filetype=tiro' -c 'set tw=80' -c 'set commentstring=#\ %s' -c ':n' -c ':bp' activities.txt $MOBILE_DIR_WORK/0_planning/activities.txt
 else
-  vi -n -c 'autocmd TextChanged,TextChangedI <buffer> silent write' -c 'set filetype=tiro' -c 'set tw=80' -c 'set commentstring=#\ %s' -c ':n' -c ':bp' activities.txt
+  vi -n -c 'autocmd CursorHold * update' -c 'set filetype=tiro' -c 'set tw=80' -c 'set commentstring=#\ %s' -c ':n' -c ':bp' activities.txt
 fi
 tmux kill-window
