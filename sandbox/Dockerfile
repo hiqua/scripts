@@ -28,8 +28,8 @@ RUN apt-get update && apt-get install -y\
       zip\
       zsh
 
-# To test systemd feature
-# Need to install it later to avoid some packages using it wrongly
+# To test systemd features.
+# Need to install it after the other packages to avoid confusing them.
 RUN apt-get update && apt-get install -y systemctl
 
 ARG user="sb"
