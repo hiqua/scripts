@@ -3,6 +3,8 @@ set -e
 set -u
 cd "$MOBILE_DIR"/0_planning || exit 2
 
+tmux rename-session tiro
+
 if [ -d "$MOBILE_DIR"/notes ]; then
   tmux new-window -d -c "$MOBILE_DIR"/notes
 fi
