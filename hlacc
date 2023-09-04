@@ -1,5 +1,15 @@
 #!/bin/sh
+# Output of hl account, cached to work around unbalanced transactions
+# preventing the command to run.
 set -e
 set -u
-# unfortunately, also fails if a transaction is unbalanced
-hledger -I account | awk '{print $0,"  "}'
+CACHED_ACCOUNTS="$USERTMP"/hledger_accounts
+tmp="$(mktemp)"
+
+hledger -I account | awk '{print $0,"  "}' > "$tmp"
+
+if [ -s "$tmp" ]; then
+  mv "$tmp" "$CACHED_ACCOUNTS"
+fi
+
+cat "$CACHED_ACCOUNTS"
