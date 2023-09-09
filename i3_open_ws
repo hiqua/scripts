@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+# Open an automatically closing terminal on all workspaces.
+# Bash to use enumeration.
 set -e
 set -u
 for i in {1..20}; do
