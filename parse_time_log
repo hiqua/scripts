@@ -9,7 +9,10 @@ from datetime import timedelta
 from pathlib import Path
 from collections import defaultdict
 
-TIME_LOG_FILE=Path(os.environ['HOME']) / '.tmp/time_log'
+if 'USERTMP' in os.environ:
+    TIME_LOG_FILE = Path(os.environ['USERTMP']) / 'time_log'
+else:
+    TIME_LOG_FILE = Path(os.environ['HOME']) / '.tmp/time_log'
 
 def within_threshold(d1, d2, threshold = timedelta(minutes=10)):
     """Returns whether d2 is less than threshold after d1.
@@ -38,9 +41,9 @@ def print_weekly_durations(intervals):
             durations[interval[0].isocalendar().week] += (interval[-1] - interval[0])
     for k, v in durations.items():
         minutes = v.total_seconds() // 60
-        hours = minutes // 60
-        minutes_left = minutes - hours * 60
-        print(f'Week {k}: {hours}:{minutes_left}')
+        hours = int(minutes // 60)
+        minutes_left = int(minutes - hours * 60)
+        print(f'Week {k}: {hours}h{minutes_left}m')
 
 def main(log_file=TIME_LOG_FILE):
     with open(log_file) as fs:
