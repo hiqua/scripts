@@ -9,5 +9,8 @@ fi
 
 if ! ps aux|grep '[s]ignal-desktop' ; then
   timeout 60 signal-desktop --start-in-tray &
-  signal-desktop-beta "$@"
+fi
+
+if ! ps aux|grep '[s]ignal-desktop-beta' ; then
+  signal-desktop-beta "$@" &
 fi
