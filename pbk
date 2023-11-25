@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import asyncio
 import sys
 import os
 import json
@@ -8,14 +9,7 @@ import requests
 ebike_name = 'E-Bike'
 bike_name = 'Bike'
 
-# Huerlimann
-huerli_id = 88
-renten_id = 101
-
-ids = {'Huerlimann': huerli_id, 'Renten': renten_id}
-ids = {'Huerlimann': 88, 'Renten': 101}
-
-def get_bikes_by_id(id):
+async def get_bikes_by_id(id):
     url = f'https://rest.publibike.ch/v1/public/stations/{id}'
     response = requests.get(url, headers={ 'Accept-Language': 'en' })
 
@@ -39,17 +33,31 @@ def get_bikes_by_id(id):
 
     # Now 'data' contains the parsed JSON object
     # pprint(vehicles)
-    print(f'Bikes: {count_bikes}, E-Bikes: {count_ebikes}')
+    return count_bikes, count_ebikes
+
+async def main():
+    tasks = {}
+    async with asyncio.TaskGroup() as tg:
+        for name, id in ids.items():
+            tasks[name] = tg.create_task(get_bikes_by_id(id))
+
+    for name in tasks:
+        tasks[name] = tasks[name].result()
+
+    return tasks
 
 if __name__ == '__main__':
     try:
-        # Requires a variable exported such as:
+        # Requires a variable exported in a .zshrc such as:
         # export PUBLIBIKE_IDS='{"SOME_NAME": 123, "SOME_OTHER": 789}'
         ids = json.loads(os.environ['PUBLIBIKE_IDS'])
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON: {e}")
         sys.exit(1)
 
-    for name, id in ids.items():
+    counts = asyncio.run(main())
+
+    for name, (count_bikes, count_ebikes) in counts.items():
         print(f'For station: {name}.')
-        get_bikes_by_id(id)
+        print(f'Bikes: {count_bikes}, E-Bikes: {count_ebikes}')
+
