@@ -3,12 +3,16 @@
 # vi, and copies the result into the clipboard.
 set -e
 set -u
-set -x
 dir="${USERTMP:-/tmp}"/quote_vi
 mkdir -p "$dir"
 file="$dir"/"$(date -Ins)"
-printf "%s\n" "$(xclip -r -selection primary -out)" | while read -r line ; do printf "> %s\n" "$line" >> "$file" ; done
-printf "\n\n" >> "$file"
+if [ "$1" = "y" ]; then
+  printf "%s\n" "$(xclip -r -selection primary -out)" | while read -r line ; do printf "> %s\n" "$line" >> "$file" ; done
+  printf "\n\n" >> "$file"
+fi
 
 vi +$ "$file"
-cat "$file" | xclip -i -selection clipboard
+
+# Need nohup to survive the exit of the script
+cat "$file" | nohup xclip -i -selection clipboard > /dev/null
+
