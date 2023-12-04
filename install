@@ -19,7 +19,7 @@ safe_link(){
       echo "$curr"
       echo "To:"
       echo "$1"
-      $LINK_CMD "$1" "$2"
+      $LINK_CMD -f "$1" "$2"
     fi
   else
     printf "Creating link: %s\n" "$2"
