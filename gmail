@@ -1,0 +1,2 @@
+#!/bin/sh
+firefox-esr -P gmail -no-remote
