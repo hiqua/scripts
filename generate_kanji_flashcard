@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""
+Fetch entries from jisho and save them to a csv.
+
+Meant to get a .csv containing flashcards to import into Anki.
+"""
+import argparse
+import csv
+import json
+import logging
+import pdb
+import requests
+
+logging.basicConfig(level=logging.DEBUG)
+
+# Example
+WORDS = """
+kangoshi
+tomodachi
+"""
+
+
+def get_jisho_data(word, page=1):
+    url = f"https://jisho.org/api/v1/search/words?keyword={word}&page={page}"
+    # jlpt-based query.
+    # url_jlpt = 'https://jisho.org/api/v1/search/words?keyword=jlpt-n5&page={page}'
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        raise Exception("Bad status code")
+
+    data = response.json()["data"]
+    return data
+
+
+def build_entry(data, word):
+    for e in data:
+        if not e["jlpt"]:
+            continue
+        if "word" in e["japanese"][0]:
+            jap_word = e["japanese"][0]["word"]
+        else:
+            jap_word = ""
+        pronunciation = e["japanese"][0]["reading"]
+        meaning = e["senses"][0]["english_definitions"][0]
+        jlpt = ",".join(e["jlpt"])
+        entry = {
+            "word": jap_word,
+            "pronunciation": pronunciation,
+            "meaning": meaning,
+            "jlpt": jlpt,
+        }
+        yield entry
+
+
+def main(filename=None):
+    if filename is not None:
+        logging.info("Reading file: %s", filename)
+        with open(filename) as fs:
+            input = fs.read()
+            print(WORDS)
+    else:
+        logging.info("Reading hardcoded input.")
+        input = WORDS
+    input = input.strip()
+    logging.info("Using input:\nBEGIN\n%s\nEND", input)
+
+    entries = []
+
+    for word in input.splitlines():
+        if not word:
+            continue
+        data = get_jisho_data(word)
+        entries.extend(build_entry(data, word))
+
+    csv_file_path = "tmp.csv"
+    with open(csv_file_path, "w", newline="") as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter="|")
+        csv_writer.writerow(entries[0].keys())
+        for entry in entries:
+            csv_writer.writerow(entry.values())
+
+    with open(csv_file_path) as fs:
+        logging.info("Wrote csv file:\n%s", fs.read())
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Build a flashcard csv from keywords.")
+    parser.add_argument(
+        "filename",
+        nargs="?",
+        type=str,
+        help="Path to the file containing the keywords",
+    )
+    args = parser.parse_args()
+
+    main(args.filename)
