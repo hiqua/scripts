@@ -41,16 +41,24 @@ def build_entry(data, word):
             jap_word = e["japanese"][0]["word"]
         else:
             jap_word = ""
+        # pdb.set_trace()
         pronunciation = e["japanese"][0]["reading"]
-        meaning = e["senses"][0]["english_definitions"][0]
         jlpt = ",".join(e["jlpt"])
-        entry = {
-            "word": jap_word,
-            "pronunciation": pronunciation,
-            "meaning": meaning,
-            "jlpt": jlpt,
-        }
-        yield entry
+        for sense in e["senses"]:
+            meaning = ', '.join(sense["english_definitions"])
+            if 'Usually written using kana alone' in sense['tags']:
+                entry_word = pronunciation
+                entry_pronunciation = ''
+            else:
+                entry_word = jap_word
+                entry_pronunciation = pronunciation
+            entry = {
+                "word": entry_word,
+                "pronunciation": entry_pronunciation,
+                "meaning": meaning,
+                "jlpt": jlpt,
+            }
+            yield entry
 
 
 def main(filename=None):
