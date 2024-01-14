@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""
+Convert subtitles from a YouTube video into chunks copy-pastable into ChatGPT.
+
+Requirements:
+pipx install yt-dlp
+sudo apt install python3-webvtt
+"""
+import argparse
+import glob
+import re
+import subprocess
+import webvtt
+
+LANG = "en"
+
+YT_DLP_BASE_COMMAND = [
+    "yt-dlp",
+    "--write-sub",
+    "--sub-lang",
+    LANG,
+    "--skip-download",
+    "--output",
+    "subtitles.%(ext)s",
+]
+
+
+def download_subtitles(video_url):
+    subprocess.run(YT_DLP_BASE_COMMAND + [video_url])
+
+
+def load_subtitles(filename):
+    with open(filename, encoding="utf-8") as file:
+        return file.read()
+
+
+def vtt_to_text(vtt_path):
+    captions = webvtt.read(vtt_path)
+    lines = []
+    for caption in captions:
+        lines.extend(caption.text.splitlines())
+
+    unique_lines = set()
+    unique_lines.add("")
+
+    transcript = []
+    for caption in lines:
+        text = caption.strip()
+        if text not in unique_lines:
+            transcript.append(text)
+            unique_lines.add(text)
+
+    return "\n".join(transcript)
+
+
+def split_chunks(subtitles, chunk_size=4000):
+    words = subtitles.split()
+    chunks = [words[i : i + chunk_size] for i in range(0, len(words), chunk_size)]
+    return [" ".join(chunk) for chunk in chunks]
+
+
+def save_chunk(chunk, index, prefix="chunk"):
+    with open(f"{prefix}_{index:02d}.txt", "w", encoding="utf-8") as file:
+        file.write(chunk)
+
+
+def convert_subtitles_into_chunks(filename):
+    transcript = vtt_to_text(filename)
+
+    chunks = split_chunks(transcript)
+
+    for i, chunk in enumerate(chunks):
+        save_chunk(chunk, i, prefix=f"chunk_{filename}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Extract subtitles from a YouTube video link into chunks copy-pastable into ChatGPT"
+    )
+
+    parser.add_argument("youtube_url", help="YouTube video URL")
+    args = parser.parse_args()
+
+    download_subtitles(args.youtube_url)
+
+    for filename in glob.glob("*.vtt"):
+        convert_subtitles_into_chunks(filename)
