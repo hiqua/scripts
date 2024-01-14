@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""
+Add Anki cloze deletions of increasing size to a text.
+"""
+import argparse
+
+
+def read_lines_from_file(filename):
+    with open(filename, "r") as file:
+        lines = [l.strip() for l in file]
+        while not lines[-1]:
+            lines.pop()
+        return lines
+
+
+def start_cloze(line, cloze_index):
+    return "{{c" + str(cloze_index) + "::" + line
+
+
+def finish_cloze(line):
+    return line + "}}"
+
+
+def encloze(line, cloze_index):
+    return finish_cloze(start_cloze(line, cloze_index))
+
+
+def create_nested_cloze_chunks(lines):
+    cloze_index = 1
+    for i in range(len(lines)):
+        if not lines[i]:
+            continue
+        lines[i] = encloze(lines[i], cloze_index)
+        cloze_index += 1
+
+    # Overlapping cloze deletions are not supported, so bigger chunks must
+    # contain smaller chunks. Guaranteed if bigger chunk sizes are multiples of
+    # smaller chunk sizes.
+    factor = 2
+    chunk_size = 2
+    while chunk_size < len(lines):
+        for start in range(0, len(lines), chunk_size):
+            end = min(start + chunk_size, len(lines)) - 1
+            lines[start] = start_cloze(lines[start], cloze_index)
+            lines[end] = finish_cloze(lines[end])
+            cloze_index += 1
+        chunk_size *= factor
+
+
+def write_lines_to_file(filename, lines):
+    with open("cloze_" + filename, "w") as file:
+        file.write("\n".join(lines))
+
+
+def add_cloze_deletion(filename):
+    lines = read_lines_from_file(filename)
+    create_nested_cloze_chunks(lines)
+    write_lines_to_file(filename, lines)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Add cloze deletion tags to chunks of text in a file."
+    )
+    parser.add_argument("filename", help="Input filename")
+
+    args = parser.parse_args()
+    add_cloze_deletion(args.filename)
