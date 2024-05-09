@@ -2,8 +2,6 @@ FROM debian:bookworm
 
 ENV DEBIAN_FRONTEND noninteractive
 
-COPY sources.list /etc/apt/sources.list
-
 RUN apt-get update && apt-get install -y\
       apt-utils\
       curl\
@@ -15,7 +13,6 @@ RUN apt-get update && apt-get install -y\
       locales\
       neovim\
       nodejs\
-      openjdk-11-jdk\ 
       pipenv\
       python3\
       python3-pip\
@@ -23,7 +20,6 @@ RUN apt-get update && apt-get install -y\
       ssh\
       sudo\
       tmux\
-      unrar\
       wget\
       zip\
       zsh
