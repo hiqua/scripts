@@ -3,7 +3,9 @@ FROM debian:bookworm
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y\
-      apt-utils\
+      apt-utils
+
+RUN apt-get update && apt-get install -y\
       curl\
       fd-find\
       gdebi\
@@ -13,6 +15,7 @@ RUN apt-get update && apt-get install -y\
       locales\
       neovim\
       nodejs\
+      npm\
       pipenv\
       python3\
       python3-pip\
