@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+"""
+Move duplicates into the same folder for easy deletion.
+"""
+from pathlib import Path
+from filecmp import cmp
+
+dup_folder = Path('_dups')
+
+def move_if_same(f1,f2):
+    """Moves f2 if it's identical to f1.
+    """
+    assert f1.is_file()
+    assert f2.is_file()
+    dup_folder.mkdir(exist_ok=True)
+    # cmp uses byte-by-byte comparison in shallow=False mode.
+    if cmp(str(f1.absolute()), str(f2.absolute()), shallow=False):
+        print(f"Moving duplicate '{f2}', which is the same as '{f1}'.")
+        # Raises if targets exists.
+        f2.rename(dup_folder / f2)
+        return True
+
+    return False
+
+def main():
+    files = sorted(p for p in Path('.').glob('*') if p.is_file())
+
+    deleted = set()
+    for i in range(len(files)):
+        if i in deleted:
+            continue
+        for j in range(i+1, len(files)):
+            if j in deleted:
+                continue
+            if move_if_same(files[i], files[j]):
+                deleted.add(j)
+
+if __name__ == '__main__':
+    main()
