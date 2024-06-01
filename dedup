@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Move duplicates into the same folder for easy deletion.
+Move duplicates into a common folder for easy deletion.
 """
 from pathlib import Path
 from filecmp import cmp
 
-dup_folder = Path('_dups')
+dup_folder = Path("_dups")
 
-def move_if_same(f1,f2):
-    """Moves f2 if it's identical to f1.
-    """
+
+def move_if_same(f1, f2):
+    """Moves f2 if it's identical to f1."""
     assert f1.is_file()
     assert f2.is_file()
     dup_folder.mkdir(exist_ok=True)
@@ -22,18 +22,20 @@ def move_if_same(f1,f2):
 
     return False
 
+
 def main():
-    files = sorted(p for p in Path('.').glob('*') if p.is_file())
+    files = sorted(p for p in Path(".").glob("*") if p.is_file())
 
     deleted = set()
     for i in range(len(files)):
         if i in deleted:
             continue
-        for j in range(i+1, len(files)):
+        for j in range(i + 1, len(files)):
             if j in deleted:
                 continue
             if move_if_same(files[i], files[j]):
                 deleted.add(j)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
