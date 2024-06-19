@@ -1,39 +1,41 @@
 #!/usr/bin/env python3
 import asyncio
+from datetime import datetime, time
 import sys
 import os
 import json
 from pprint import pprint
 import requests
+from plyer import notification
 
-ebike_name = 'E-Bike'
-bike_name = 'Bike'
+
+ebike_name = "E-Bike"
+bike_name = "Bike"
+
 
 async def get_bikes_by_id(id):
-    url = f'https://rest.publibike.ch/v1/public/stations/{id}'
-    response = requests.get(url, headers={ 'Accept-Language': 'en' })
+    url = f"https://rest.publibike.ch/v1/public/stations/{id}"
+    response = requests.get(url, headers={"Accept-Language": "en"})
 
     if response.status_code == 200:
-        # Assuming you expect JSON data as a response
         data = response.json()
     else:
         print(f"Request failed with status code: {response.status_code}")
 
     count_ebikes = 0
     count_bikes = 0
-    vehicles = data['vehicles']
+    vehicles = data["vehicles"]
     for vehicle in vehicles:
-        if vehicle['type']['name'] == bike_name:
+        if vehicle["type"]["name"] == bike_name:
             count_bikes += 1
-        elif vehicle['type']['name'] == ebike_name:
+        elif vehicle["type"]["name"] == ebike_name:
             count_ebikes += 1
         else:
-            print(vehicle['name'])
+            print(vehicle["name"])
             raise NotImplementedError
 
-    # Now 'data' contains the parsed JSON object
-    # pprint(vehicles)
     return count_bikes, count_ebikes
+
 
 async def main():
     tasks = {}
@@ -46,18 +48,42 @@ async def main():
 
     return tasks
 
-if __name__ == '__main__':
+
+def notify(name, count_bikes, count_ebikes):
+    """Notify conditionally about the given station of the given counts."""
+    if count_bikes + count_ebikes == 0:
+        return
+
+    start_time = time(16, 30)
+    end_time = time(20, 30)
+
+    if start_time <= datetime.now().time() <= end_time and count_ebikes <= 15:
+        notification.notify(
+            title=f"{count_ebikes} ebikes left at {name}.",
+            message=f"{count_bikes} bikes left.",
+            timeout=10,
+        )
+
+
+def print_results(counts):
+    for name, (count_bikes, count_ebikes) in counts.items():
+        print(f"For station: {name}.")
+        print(f"Bikes: {count_bikes}, E-Bikes: {count_ebikes}")
+        if name in to_notify:
+            notify(name, count_bikes, count_ebikes)
+
+
+if __name__ == "__main__":
     try:
         # Requires a variable exported in a .zshrc such as:
         # export PUBLIBIKE_IDS='{"SOME_NAME": 123, "SOME_OTHER": 789}'
-        ids = json.loads(os.environ['PUBLIBIKE_IDS'])
+        ids = json.loads(os.environ["PUBLIBIKE_IDS"])
+        # Requires a variable exported in a .zshrc such as:
+        # export PUBLIBIKE_NOTIFY='["SOME_NAME"]'
+        to_notify = json.loads(os.environ.get("PUBLIBIKE_NOTIFY", "[]"))
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON: {e}")
         sys.exit(1)
 
     counts = asyncio.run(main())
-
-    for name, (count_bikes, count_ebikes) in counts.items():
-        print(f'For station: {name}.')
-        print(f'Bikes: {count_bikes}, E-Bikes: {count_ebikes}')
-
+    print_results(counts)
