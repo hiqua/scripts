@@ -49,7 +49,7 @@ async def main():
     return tasks
 
 
-def notify(name, count_bikes, count_ebikes):
+def send_notify(name, count_bikes, count_ebikes):
     """Notify conditionally about the given station of the given counts."""
     if count_bikes + count_ebikes == 0:
         return
@@ -65,12 +65,12 @@ def notify(name, count_bikes, count_ebikes):
         )
 
 
-def print_results(counts):
+def print_results(counts, notify=False):
     for name, (count_bikes, count_ebikes) in counts.items():
         print(f"For station: {name}.")
         print(f"Bikes: {count_bikes}, E-Bikes: {count_ebikes}")
-        if name in to_notify:
-            notify(name, count_bikes, count_ebikes)
+        if notify and name in to_notify:
+            send_notify(name, count_bikes, count_ebikes)
 
 
 if __name__ == "__main__":
