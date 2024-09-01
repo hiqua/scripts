@@ -9,6 +9,10 @@ DIRECTORY="$1"
 
 LINK_CMD="ln -i -s"
 safe_link(){
+  if [ -L "$2" ] && [ ! -e "$2" ]; then
+    # Remove existing dead symlink.
+    rm -f "$2"
+  fi
   if [ -L "$2" ]; then
     curr="$(readlink -n "$2")"
     if [ "$curr" = "$1" ]; then
