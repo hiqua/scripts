@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+sudo apt install python3-plyer
+"""
 import asyncio
 from datetime import datetime, time
 import sys
