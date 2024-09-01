@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""
+Sanitize filenames for Android by removing forbidden characters.
+"""
+import os
+import argparse
+
+_FORBIDDEN_CHARS = ["\\", "/", "?", "*", ":", '"', "<", ">", "|"]
+_TRANSLATION_TABLE = str.maketrans({char: "" for char in _FORBIDDEN_CHARS})
+
+
+def sanitize_filename(filename):
+    return filename.translate(_TRANSLATION_TABLE)
+
+
+def rename_file(original_path):
+    directory, original_filename = os.path.split(original_path)
+    sanitized_filename = sanitize_filename(original_filename)
+    if original_filename == sanitized_filename:
+        return
+    new_path = os.path.join(directory, sanitized_filename)
+    os.rename(original_path, new_path)
+    print(f"Renamed '{original_path}' to '{new_path}'")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Sanitize filenames for Android by removing forbidden characters."
+    )
+    parser.add_argument("filepaths", type=str, nargs="+", help="The path to the file.")
+    args = parser.parse_args()
+
+    for filepath in args.filepaths:
+        rename_file(filepath)
+
+
+if __name__ == "__main__":
+    main()
