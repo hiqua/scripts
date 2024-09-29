@@ -10,7 +10,7 @@ file="$folder"/"$(date --iso-8601)"
 
 mkdir -p "$folder"
 
-r="$(date +%N)"
+r="$(date +%N | cut -c 1-6)"
 echo "Write $r"
 read -r rr
 if [ "$rr" != "$r" ]; then
@@ -18,9 +18,9 @@ if [ "$rr" != "$r" ]; then
   exit 1
 fi
 
-first_reason="Need to send email"
-second_reason="Read email"
-third_reason="Override for a perfectly good reason"
+first_reason="need to send email"
+second_reason="read email"
+third_reason="override for a perfectly good reason"
 echo "Write '$first_reason' or '$second_reason' or '$third_reason'"
 read -r reason
 
