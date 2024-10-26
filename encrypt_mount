@@ -10,6 +10,13 @@ mount(){
   fi
 
   uuid="$1"
+  i=0
+  while ! lsblk -o UUID | grep -q "$uuid" && [ $i -lt 10 ] ; do
+    echo UUID not available yet.
+    echo $i
+    sleep 1
+    i=$((i+1))
+  done
   dev=$(lsblk -r -f | grep "$uuid"  | cut -d' ' -f1)
 
   out=$(udisksctl unlock --no-user-interaction -b /dev/"$dev")
