@@ -1,9 +1,30 @@
 #!/bin/bash
 # Open an automatically closing terminal on all workspaces.
-# Bash to use enumeration.
+#
+# i3config should contain:
+# for_window [title="TEMP_WS 1"] move container to workspace number 1
+# for_window [title="TEMP_WS 2"] move container to workspace number 2
+# for_window [title="TEMP_WS 3"] move container to workspace number 3
+# for_window [title="TEMP_WS 4"] move container to workspace number 4
+# for_window [title="TEMP_WS 5"] move container to workspace number 5
+# for_window [title="TEMP_WS 6"] move container to workspace number 6
+# for_window [title="TEMP_WS 7"] move container to workspace number 7
+# for_window [title="TEMP_WS 8"] move container to workspace number 8
+# for_window [title="TEMP_WS 9"] move container to workspace number 9
+# for_window [title="TEMP_WS 10"] move container to workspace number 10
+# for_window [title="TEMP_WS 11"] move container to workspace number 11
+# for_window [title="TEMP_WS 12"] move container to workspace number 12
+# for_window [title="TEMP_WS 13"] move container to workspace number 13
+# for_window [title="TEMP_WS 14"] move container to workspace number 14
+# for_window [title="TEMP_WS 15"] move container to workspace number 15
+# for_window [title="TEMP_WS 16"] move container to workspace number 16
+# for_window [title="TEMP_WS 17"] move container to workspace number 17
+# for_window [title="TEMP_WS 18"] move container to workspace number 18
+# for_window [title="TEMP_WS 19"] move container to workspace number 19
+# for_window [title="TEMP_WS 20"] move container to workspace number 20
 set -e
 set -u
 for i in {1..20}; do
-  gnome-terminal -t "TEMP_WS $i" -- sleep 120
+  gnome-terminal -t "TEMP_WS $i" -- sleep 60
 done
 
