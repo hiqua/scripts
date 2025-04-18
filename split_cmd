@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+r"""
+Split a bash command over several lines, using backslashes.
+
+Example:
+./split_cmd 'some_cmd --flag "afds df qq" arg2'
+
+some_cmd \
+  --flag \
+  "afds df qq" \
+  arg2
+"""
+import sys
+
+def main(original_command):
+    """Splits a command string into a multi-line string with escaped newlines."""
+    parts = []
+    in_quotes = False
+    current_part = ""
+
+    for char in original_command:
+        if char == '"' or char == "'":
+            in_quotes = not in_quotes
+            current_part += char
+        elif char == " " and not in_quotes:
+            parts.append(current_part)
+            current_part = ""
+        else:
+            current_part += char
+
+    parts.append(current_part)
+    result = " \\\n  ".join(parts)
+    print(result)
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    command = " ".join(args)
+    main(command)
