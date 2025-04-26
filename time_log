@@ -1,5 +1,30 @@
-#!/bin/sh
-FOLDER="${USERTMP:-~/.tmp}"
+#!/bin/bash
+set -e
+set -u
+
+# 2023-11-25 XXX: try to remove this after rebooting, should be enough to have it in .profile?
+export XDG_CONFIG_DIR="${XDG_CONFIG_DIR:=$HOME/.config}"
+export ZDOTDIR="${XDG_CONFIG_DIR:-$HOME/.config}/zsh"
+
+# For USERTMP
+. "$ZDOTDIR"/10_globals.zsh
+. "$ZDOTDIR"/17_zshrc_corp.zsh
+
+if [ "${TIME_LOG_FOLDER:+z}" = z ]; then
+  FOLDER="$TIME_LOG_FOLDER"
+else
+  FOLDER="${USERTMP:-$HOME/.tmp}"/timelogs
+fi
+
 mkdir -p "$FOLDER"
-touch "$FOLDER"/time_log
-date -Iseconds >> "$FOLDER"/time_log
+
+fn="$FOLDER"/time_log_"$(hostname --long)"
+touch "$fn"
+
+log="$(date -Iseconds) $(hostname --long)"
+tmp="$(mktemp)"
+cp "$fn" "$tmp"
+printf "%s\n" "$log" >> "$tmp"
+
+# To make appending atomic and avoid corrupting the log
+mv "$tmp" "$fn"
