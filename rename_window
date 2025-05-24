@@ -1,0 +1,15 @@
+#!/bin/sh
+# Rename the currently focused window.
+set -e
+set -u
+
+WINDOW_ID=$(xdotool getactivewindow)
+NEW_TITLE=$(zenity --entry --text="Enter new window title:" --title="Rename Window")
+
+if [ -n "$NEW_TITLE" ]; then
+  # Continuously rename it to prevent overrides, until the window no longer exists.
+  while true; do
+    xdotool set_window --name "$NEW_TITLE" "$WINDOW_ID" || break
+    sleep 5
+  done
+fi
