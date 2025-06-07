@@ -33,6 +33,7 @@ if  grep -q "$file" "$REMOVE_LIST"; then
 fi
 
 printf "File: %s not in any list\n" "$file"
+tree "$file" | head -n 10
 
 # Subshell required to make the select compatible with the while loop.
 (
