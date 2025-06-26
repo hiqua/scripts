@@ -1,0 +1,21 @@
+#!/bin/sh
+# Custom watch as a binary. Changes tmux pane title.
+cmd="$1"
+interval=5
+if [ "$#" -eq 2 ]; then
+  interval="$2"
+fi
+
+# Change pane title.
+printf "\033]2;%s\033\\" "$cmd"
+
+while true; do
+  cd .
+  output="$(eval "$cmd")"
+  clear
+  date
+  printf "%s" "$output"
+  sleep "$interval"
+done
+
+
