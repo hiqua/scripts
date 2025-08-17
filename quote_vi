@@ -11,7 +11,8 @@ if [ "$1" = "y" ]; then
   printf "\n\n" >> "$file"
 fi
 
-vi +$ "$file"
+
+vi +$ -c "set updatetime=1 | autocmd CursorHold,CursorHoldI * update" "$file"
 
 # Need nohup to survive the exit of the script
 cat "$file" | nohup xclip -i -selection clipboard > /dev/null
