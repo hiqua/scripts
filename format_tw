@@ -1,0 +1,8 @@
+#!/bin/bash
+# Reformat clipboard text to 80 characters wide and type it.
+set -e
+set -u
+tw=80
+text=$(xclip -selection clipboard -o)
+formatted="$(printf "%s" "$text" | fmt -w $tw)"
+xdotool type --clearmodifiers -- "$formatted"
