@@ -11,6 +11,34 @@ from datetime import timedelta
 from pathlib import Path
 from collections import defaultdict
 import subprocess
+from dataclasses import dataclass, field
+
+
+@dataclass
+class Interval:
+    timestamps: list[datetime] = field(default_factory=list)
+
+    def __getitem__(self, idx):
+        return self.timestamps[idx]
+
+    def __len__(self):
+        return len(self.timestamps)
+
+    def append(self, dt: datetime) -> None:
+        self.timestamps.append(dt)
+
+    @property
+    def start(self) -> datetime:
+        return self.timestamps[0]
+
+    @property
+    def end(self) -> datetime:
+        return self.timestamps[-1]
+
+    @property
+    def duration(self) -> timedelta:
+        return self.end - self.start
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,27 +57,27 @@ def within_threshold(d1, d2, threshold=timedelta(minutes=10)):
     return d2 - d1 < threshold
 
 
-def print_intervals(intervals):
+def print_intervals(intervals: list[Interval]) -> None:
     """Prints extremities of the non-null intervals."""
     for interval in intervals:
-        if interval[-1] - interval[0] != timedelta():
-            print(f"[{interval[0]}, {interval[-1]}], {interval[-1] - interval[0]}")
+        if len(interval) >= 2 and interval.duration != timedelta():
+            print(f"[{interval.start}, {interval.end}], {interval.duration}")
 
 
-def print_daily_durations(intervals, num_of_days=14):
+def print_daily_durations(intervals: list[Interval], num_of_days: int = 14) -> None:
     durations = defaultdict(timedelta)
     for interval in intervals:
-        if interval[-1] - interval[0] != timedelta():
-            durations[interval[0].date()] += interval[-1] - interval[0]
+        if len(interval) >= 2 and interval.duration != timedelta():
+            durations[interval.start.date()] += interval.duration
     for k, v in list(durations.items())[-num_of_days:]:
         print(f"{k}: {v}")
 
 
-def print_weekly_durations(intervals, num_of_weeks=20):
+def print_weekly_durations(intervals: list[Interval], num_of_weeks: int = 20) -> None:
     durations = defaultdict(timedelta)
     for interval in intervals:
-        if interval[-1] - interval[0] != timedelta():
-            durations[interval[0].isocalendar().week] += interval[-1] - interval[0]
+        if len(interval) >= 2 and interval.duration != timedelta():
+            durations[interval.start.isocalendar().week] += interval.duration
     for k, v in list(durations.items())[-num_of_weeks:]:
         minutes = v.total_seconds() // 60
         hours = int(minutes // 60)
@@ -57,7 +85,7 @@ def print_weekly_durations(intervals, num_of_weeks=20):
         print(f"Week {k}: {hours:02d}h{minutes_left:02d}m")
 
 
-def compute_today_duration(interval):
+def compute_today_duration(interval: Interval) -> timedelta:
     """Computes the amount of time of today that's in the interval."""
     if len(interval) < 2:
         return timedelta()
@@ -79,7 +107,7 @@ def compute_today_duration(interval):
     return total
 
 
-def notify_on_today_full_hours(intervals):
+def notify_on_today_full_hours(intervals: list[Interval]) -> None:
     """Notifies on full hours reached today.
 
     Sums today's durations over all intervals. If a new full hour is reached,
@@ -105,7 +133,7 @@ def notify_on_today_full_hours(intervals):
             Path(notif_file).touch()
 
 
-def main(log_files=TIME_LOG_FILES):
+def parse_dates_from_logs(log_files) -> list[datetime]:
     dates = []
     for log_file in log_files:
         with open(log_file) as fs:
@@ -113,22 +141,28 @@ def main(log_files=TIME_LOG_FILES):
 
         # remove linebreak from line
         dates.extend(datetime.fromisoformat(line.split()[0]) for line in lines if line)
+    return dates
+
+
+def create_intervals(dates: list[datetime]) -> list[Interval]:
+    dates.sort()
+    intervals: list[Interval] = [Interval([dates[0]])]
+    for date in dates[1:]:
+        if within_threshold(intervals[-1][-1], date):
+            intervals[-1].append(date)
+        else:
+            intervals.append(Interval([date]))
+    return intervals
+
+
+def main(log_files=TIME_LOG_FILES):
+    dates = parse_dates_from_logs(log_files)
 
     if not dates:
         logging.warning("No log found in '%s', suspicious", ",".join(log_files))
         return
 
-    dates.sort()
-
-    # Contains only non-empty list
-    intervals = [[dates[0]]]
-
-    # We assume dates are sorted
-    for date in dates[1:]:
-        if within_threshold(intervals[-1][-1], date):
-            intervals[-1].append(date)
-        else:
-            intervals.append([date])
+    intervals = create_intervals(dates)
 
     assert sum(len(l) for l in intervals) == len(dates)
     print_intervals(intervals)
