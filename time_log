@@ -7,8 +7,12 @@ export XDG_CONFIG_DIR="${XDG_CONFIG_DIR:=$HOME/.config}"
 export ZDOTDIR="${XDG_CONFIG_DIR:-$HOME/.config}/zsh"
 
 # For USERTMP
-. "$ZDOTDIR"/10_globals.zsh
-. "$ZDOTDIR"/17_zshrc_corp.zsh
+if [ -f "$ZDOTDIR"/10_globals.zsh ]; then
+  . "$ZDOTDIR"/10_globals.zsh || true
+fi
+if [ -f "$ZDOTDIR"/17_zshrc_corp.zsh ]; then
+  . "$ZDOTDIR"/17_zshrc_corp.zsh
+fi
 
 if [ "${TIME_LOG_FOLDER:+z}" = z ]; then
   FOLDER="$TIME_LOG_FOLDER"
@@ -21,10 +25,13 @@ mkdir -p "$FOLDER"
 fn="$FOLDER"/time_log_"$(hostname --long)"
 touch "$fn"
 
-log="$(date -Iseconds) $(hostname --long)"
-tmp="$(mktemp)"
-cp "$fn" "$tmp"
-printf "%s\n" "$log" >> "$tmp"
+append_to_log_atomically(){
+  log="$(date -Iseconds) $(hostname --long)"
+  tmp="$(mktemp)"
+  cp "$fn" "$tmp"
+  printf "%s\n" "$log" >> "$tmp"
 
-# To make appending atomic and avoid corrupting the log
-mv "$tmp" "$fn"
+  mv "$tmp" "$fn"
+}
+
+append_to_log_atomically
