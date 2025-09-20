@@ -10,6 +10,7 @@ from datetime import datetime
 from datetime import timedelta
 from pathlib import Path
 from collections import defaultdict
+import subprocess
 
 logging.basicConfig(level=logging.INFO)
 
@@ -56,6 +57,54 @@ def print_weekly_durations(intervals, num_of_weeks=20):
         print(f"Week {k}: {hours:02d}h{minutes_left:02d}m")
 
 
+def compute_today_duration(interval):
+    """Computes the amount of time of today that's in the interval."""
+    if len(interval) < 2:
+        return timedelta()
+    today = datetime.now().date()
+    total = timedelta()
+    for i in range(1, len(interval)):
+        prev, curr = interval[i - 1], interval[i]
+        # Only count segments that are within today
+        if prev.date() == today and curr.date() == today:
+            total += curr - prev
+        elif prev.date() == today and curr.date() != today:
+            # Segment ends after today
+            end_of_today = datetime.combine(today, datetime.max.time())
+            total += end_of_today - prev
+        elif prev.date() != today and curr.date() == today:
+            # Segment starts before today
+            start_of_today = datetime.combine(today, datetime.min.time())
+            total += curr - start_of_today
+    return total
+
+
+def notify_on_today_full_hours(intervals):
+    """Notifies on full hours reached today.
+
+    Sums today's durations over all intervals. If a new full hour is reached,
+    send a notification and track it via a witness file.
+    """
+    today = datetime.now().date()
+    total_today = timedelta()
+    for interval in intervals:
+        total_today += compute_today_duration(interval)
+    total_hours = int(total_today.total_seconds() // 3600)
+    if total_hours >= 1:
+        notif_file = (
+            f"/tmp/parse_time_log_today_{today.strftime('%Y%m%d')}_{total_hours}"
+        )
+        if not os.path.exists(notif_file):
+            seconds = int(total_today.total_seconds())
+            hours = seconds // 3600
+            minutes = (seconds % 3600) // 60
+            secs = seconds % 60
+            duration_str = f"{hours:02d}:{minutes:02d}:{secs:02d}"
+            msg = f"You've reached {total_hours} hour(s) today in total! (Exact: {duration_str})"
+            subprocess.run(["notify-send", "Time Log", msg])
+            Path(notif_file).touch()
+
+
 def main(log_files=TIME_LOG_FILES):
     dates = []
     for log_file in log_files:
@@ -66,7 +115,7 @@ def main(log_files=TIME_LOG_FILES):
         dates.extend(datetime.fromisoformat(line.split()[0]) for line in lines if line)
 
     if not dates:
-        logging.warning("No log found, suspicious")
+        logging.warning("No log found in '%s', suspicious", ",".join(log_files))
         return
 
     dates.sort()
@@ -85,6 +134,7 @@ def main(log_files=TIME_LOG_FILES):
     print_intervals(intervals)
     print_daily_durations(intervals)
     print_weekly_durations(intervals)
+    notify_on_today_full_hours(intervals)
 
 
 if __name__ == "__main__":
