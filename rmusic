@@ -3,8 +3,6 @@
 # Meant for music I haven't listened to yet, to see if I should keep it or not.
 # TODO: get rid of bash, rewrite in python
 
-
-
 {
   set -e
   set -u
@@ -15,25 +13,27 @@
 
 # for MOBILE_DIR
 . "${ZDOTDIR:-$HOME/.config/zsh}"/11_locals.zsh
+TGT_OPUS="$MOBILE_MUSIC/opus"
+TGT_FLAC="$MOBILE_MUSIC/flac"
+mkdir -p "$TGT_OPUS"
+mkdir -p "$TGT_FLAC"
 
 # for sources
 . "${ZDOTDIR:-$HOME/.config/zsh}"/14_locals_bash.zsh
 
 RMUSIC_LIMIT="${RMUSIC_LIMIT:-10}"
 
-tgt_opus="$MOBILE_MUSIC/opus"
-tgt_flac="$MOBILE_MUSIC/flac"
-mkdir -p "$tgt_opus"
-mkdir -p "$tgt_flac"
+
+echo "Using sources: ${RMUSIC_SOURCES[@]}"
 
 convert_to_opus(){
   # ffmpeg loglevel 24: only warnings
-  find "$tgt_opus" -type f -iname '*.flac' -print0 | xargs -0 -r parallel --nice 19 -j 2 "ffmpeg -loglevel 24 -y -i {} -b:a 96k {.}.opus && rm {}" :::
+  find "$TGT_OPUS" -type f -iname '*.flac' -print0 | xargs -0 -r parallel --nice 19 -j 2 "ffmpeg -loglevel 24 -y -i {} -b:a 96k {.}.opus && rm {}" :::
 }
 
 space_taken(){
   # compute the space taken by the opus folder
-  du -BM -s "$tgt_opus"  | awk '{gsub("M", "") ; print $1}'
+  du -BM -s "$TGT_OPUS"  | awk '{gsub("M", "") ; print $1}'
 }
 
 delete_folders_not_in_other(){
@@ -50,12 +50,13 @@ delete_folders_not_in_other(){
 
 
 # delete the folders in opus that are no longer in flac...
-delete_folders_not_in_other "$tgt_flac" "$tgt_opus"
+delete_folders_not_in_other "$TGT_FLAC" "$TGT_OPUS"
 # ...and vice-versa
-delete_folders_not_in_other "$tgt_opus" "$tgt_flac"
+delete_folders_not_in_other "$TGT_OPUS" "$TGT_FLAC"
 
 for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
   taken="$(space_taken)"
+  # Do not add more folders if there's already too much space taken.
   if [ "$taken" -ge 1000 ]; then
     break
   fi
@@ -75,23 +76,23 @@ for ((i=1; i<=RMUSIC_LIMIT; i++ )); do
     move="true"
   fi
   set -e
-  folder_number="$(find "$tgt_flac" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
+  folder_number="$(find "$TGT_FLAC" -mindepth 1 -maxdepth 1 -type d -printf 'A'| wc -c)"
 
   if [ "$folder_number" -ge "$RMUSIC_LIMIT" ]; then
     break
   fi
 
-  cp -r -n "$p" "$tgt_opus"
+  cp -r -n "$p" "$TGT_OPUS"
 
-  printf "%s" "$p" >> "$tgt_opus"/"$(basename "$p")"/rmusic_path
+  printf "%s" "$p" >> "$TGT_OPUS"/"$(basename "$p")"/rmusic_path
 
   if [ "$move" = "true" ]; then
-    mv -n "$p" "$tgt_flac"
+    mv -n "$p" "$TGT_FLAC"
   else
-    cp -r -n "$p" "$tgt_flac"
+    cp -r -n "$p" "$TGT_FLAC"
   fi
 
-  find "$tgt_opus" -iname '+' -type d -prune -exec trash '{}' \;
+  find "$TGT_OPUS" -iname '+' -type d -prune -exec trash '{}' \;
 
   convert_to_opus > /dev/null
 done
