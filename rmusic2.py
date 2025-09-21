@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
+"""
+Picks an album folder at random.
+
+Using mpd to avoid slow network access.
+"""
 import os
 import subprocess
 import sys
 import random
 from pathlib import Path
-"""
-Random music using mpd to avoid slow network access.
-"""
 
 
 
