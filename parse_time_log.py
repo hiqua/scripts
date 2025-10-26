@@ -98,11 +98,11 @@ def compute_today_duration(interval: Interval) -> timedelta:
             total += curr - prev
         elif prev.date() == today and curr.date() != today:
             # Segment ends after today
-            end_of_today = datetime.combine(today, datetime.max.time())
+            end_of_today = datetime.combine(today, datetime.max.time(), tzinfo=curr.tzinfo)
             total += end_of_today - prev
         elif prev.date() != today and curr.date() == today:
             # Segment starts before today
-            start_of_today = datetime.combine(today, datetime.min.time())
+            start_of_today = datetime.combine(today, datetime.min.time(), tzinfo=curr.tzinfo)
             total += curr - start_of_today
     return total
 
