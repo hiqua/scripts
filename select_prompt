@@ -3,4 +3,4 @@ set -e
 set -u
 : "${PROMPTS_DIR:=$MOBILE_DIR/prompts}"
 file="$(find "$PROMPTS_DIR" -type f | rofi -dmenu -i)"
-xclip -selection clipboard "$PROMPTS_DIR"/"$file"
+xclip -selection clipboard "$file"
