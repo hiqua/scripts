@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""Periodically run a command, save differing outputs, and show diffs.
+
+This script runs a given command periodically, captures its output, and
+saves it in a temporary directory. Only outputs that differ from the previous
+iteration are saved.
+"""
+
+import argcomplete
+import argparse
+import subprocess
+import time
+import difflib
+import sys
+import tempfile
+from pathlib import Path
+from datetime import datetime
+from collections.abc import Sequence
+
+
+def run_command(command: Sequence[str]) -> str:
+    """Runs a shell command and returns its output as a string.
+
+    Args:
+        command: Command and arguments to execute.
+
+    Returns:
+        Standard output of the command.
+    """
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        shell=False,
+    )
+    return result.stdout or ""
+
+
+def save_output(directory: Path, content: str) -> Path:
+    """Saves content to a timestamped file in the given directory.
+
+    Args:
+        directory: Directory to store output files.
+        content: Content to write.
+
+    Returns:
+        Path to the file where content was saved.
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    file_path = directory / f"output_{timestamp}.txt"
+    file_path.write_text(content, encoding="utf-8")
+    return file_path
+
+
+def show_diff(old_content: str, new_content: str) -> None:
+    """Shows a unified diff between two strings.
+
+    Args:
+        old_content: Previous content.
+        new_content: Current content.
+    """
+    diff = difflib.unified_diff(
+        old_content.splitlines(keepends=True),
+        new_content.splitlines(keepends=True),
+        fromfile="previous",
+        tofile="current",
+    )
+    sys.stdout.writelines(diff)
+
+
+def watch_command(command: Sequence[str], period: float) -> None:
+    """Periodically runs a command, saves differing outputs, and shows diffs.
+
+    Args:
+        command: Command and arguments to execute.
+        period: Seconds between command executions.
+    """
+    temp_dir = Path(tempfile.mkdtemp(prefix="watch_diff_"))
+    print(f"Storing outputs in: {temp_dir}")
+
+    previous_output: str = ""
+    last_run_time: datetime | None = None
+    last_changed_time: datetime | None = None
+
+    try:
+        while True:
+            run_time = datetime.now()
+            current_output = run_command(command)
+        changed = current_output != previous_output
+
+        if changed:
+            show_diff(previous_output, current_output)
+            save_output(temp_dir, current_output)
+            previous_output = current_output
+            last_changed_time = run_time
+
+        def fmt(t: datetime | None) -> str:
+            return t.strftime("%Y-%m-%d %H:%M:%S") if t else "-"
+
+        status_line = (
+            f"run= {fmt(run_time)}"
+            f"  previous_run= {fmt(last_run_time)}"
+            f"  last_changed= {fmt(last_changed_time)}"
+        )
+
+        if changed:
+            print(status_line)
+        else:
+            sys.stdout.write("\r" + status_line + "\x1b[K")
+            sys.stdout.flush()
+
+            last_run_time = run_time
+    except KeyboardInterrupt:
+        sys.stdout.write("\n")
+        print(f"Exiting. Stored outputs in: {temp_dir}")
+        return
+        time.sleep(period)
+
+
+def main() -> None:
+    """Parses arguments and starts watching the command."""
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run a command periodically, store differing outputs, " "and show diffs."
+        )
+    )
+    parser.add_argument(
+        "command",
+        nargs="+",
+        help="Command and arguments to run (e.g., ls -la).",
+    )
+    parser.add_argument(
+        "--period",
+        type=float,
+        default=2.0,
+        help="Period in seconds between command executions.",
+    )
+    argcomplete.autocomplete(parser)
+    args = parser.parse_args()
+
+    watch_command(args.command, args.period)
+
+
+if __name__ == "__main__":
+    main()
