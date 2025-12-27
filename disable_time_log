@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+set -u
+set -o pipefail
+crontab -l | sed '/^[^#].*time_log$/s/^/# /' | crontab -
+
