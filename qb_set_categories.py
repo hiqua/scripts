@@ -23,8 +23,6 @@ def login():
         data={"username": USERNAME},
     )
     resp.raise_for_status()
-    if resp.text != "Ok.":
-        raise Exception("Login failed")
 
 
 def get_torrents():
@@ -56,7 +54,10 @@ def set_category(torrent_hash, category):
 
 
 def main():
-    login()
+    try:
+        login()
+    except Exception:
+        return
 
     categories = get_categories()
     for category in EXT_TO_CATEGORY.keys():
