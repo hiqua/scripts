@@ -24,8 +24,6 @@ mkdir -p "$TGT_FLAC"
 RMUSIC_LIMIT="${RMUSIC_LIMIT:-10}"
 
 
-echo "Using sources: ${RMUSIC_SOURCES[@]}"
-
 convert_to_opus(){
   # ffmpeg loglevel 24: only warnings
   find "$TGT_OPUS" -type f -iname '*.flac' -print0 | xargs -0 -r parallel --nice 19 -j 2 "ffmpeg -loglevel 24 -y -i {} -b:a 96k {.}.opus && rm {}" :::
