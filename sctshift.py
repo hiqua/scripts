@@ -40,8 +40,8 @@ def compute_temperature(morningh, midafterh, eveningh):
 
 def main():
     morningh = int(os.environ.get("REDSHIFT_MORNING", 8))
-    midafterh = int(os.environ.get("REDSHIFT_MIDAFTER", 17))
-    eveningh = int(os.environ.get("REDSHIFT_EVENING", 21))
+    midafterh = int(os.environ.get("REDSHIFT_MIDAFTER", 15))
+    eveningh = int(os.environ.get("REDSHIFT_EVENING", 20))
 
     temp = compute_temperature(morningh, midafterh, eveningh)
     set_temperature(str(temp))
