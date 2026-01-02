@@ -12,6 +12,13 @@ some_cmd \
 """
 import sys
 
+
+def join_first_two_parts(parts):
+    first_part = f"{parts[0]} {parts[1]}"
+    new_parts = [first_part] + parts[2:]
+    return new_parts
+
+
 def main(original_command):
     """Splits a command string into a multi-line string with escaped newlines."""
     parts = []
@@ -28,6 +35,14 @@ def main(original_command):
         else:
             current_part += char
 
+    # In most cases we want at least one arg along with the binary.
+    parts = join_first_two_parts(parts)
+
+    # If it's a target.
+    if parts[1].startswith("//"):
+        parts = join_first_two_parts(parts)
+    if parts[1] == "--":
+        parts = join_first_two_parts(parts)
     parts.append(current_part)
     result = " \\\n  ".join(parts)
     print(result)
