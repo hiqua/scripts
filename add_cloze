@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""
-Add Anki cloze deletions of increasing size to a text.
+"""Add Anki cloze deletions of increasing size to a text.
+
+Reads from a file or stdin and writes to stdout by default.
 """
 import argparse
 import logging
+import sys
 
 logging.basicConfig(level=logging.INFO)
 
@@ -11,12 +13,21 @@ CHUNK_MULTIPLIER = 2
 INITIAL_CHUNK_SIZE = 2
 
 
+def _strip_trailing_empty_lines(lines):
+    while lines and not lines[-1]:
+        lines.pop()
+    return lines
+
+
 def read_lines_from_file(filename):
     with open(filename, "r") as file:
         lines = [l.strip() for l in file]
-        while not lines[-1]:
-            lines.pop()
-        return lines
+    return _strip_trailing_empty_lines(lines)
+
+
+def read_lines_from_stdin():
+    lines = [l.strip() for l in sys.stdin]
+    return _strip_trailing_empty_lines(lines)
 
 
 def start_cloze(line, cloze_index):
@@ -31,17 +42,17 @@ def encloze(line, cloze_index):
     return finish_cloze(start_cloze(line, cloze_index))
 
 
-def create_nested_cloze_chunks(lines):
-    """
+def create_nested_cloze_chunks(lines, index_offset=0):
+    """Add nested cloze deletions in-place to ``lines``.
+
     Partially overlapping cloze deletions are not supported, so bigger chunks
-    must contain smaller chunks. Guaranteed if bigger chunk sizes are
+    must contain smaller chunks. This is guaranteed if bigger chunk sizes are
     multiples of smaller chunk sizes.
 
-    See
-    "There is no support for partial overlaps" in
+    See "There is no support for partial overlaps" in
     https://docs.ankiweb.net/editing.html?highlight=cloze#cloze-deletion.
     """
-    cloze_index = 1
+    cloze_index = 1 + index_offset
 
     added_chunks = set()
     # Distinguishing case chunk_size == 1 to skip empty lines. We assume
@@ -69,35 +80,70 @@ def create_nested_cloze_chunks(lines):
             cloze_index += 1
         chunk_size *= CHUNK_MULTIPLIER
 
+    # Ensure a final cloze covering the entire text exists
+    if lines and (0, len(lines) - 1) not in added_chunks:
+        added_chunks.add((0, len(lines) - 1))
+        lines[0] = start_cloze(lines[0], cloze_index)
+        lines[-1] = finish_cloze(lines[-1])
+        cloze_index += 1
+
 
 def write_lines_to_file(filename, lines, overwrite=False):
-    cloze_file = "cloze_" + filename
     mode = "w" if overwrite else "x"
     try:
-        with open(cloze_file, mode) as file:
+        with open(filename, mode) as file:
             file.write("\n".join(lines))
     except FileExistsError as e:
         logging.error("File already exists: %s", e)
 
 
-def add_cloze_deletion(filename, overwrite):
-    lines = read_lines_from_file(filename)
-    create_nested_cloze_chunks(lines)
-    write_lines_to_file(filename, lines, overwrite)
+def add_cloze_deletion(lines, index_offset=0):
+    create_nested_cloze_chunks(lines, index_offset=index_offset)
+    return lines
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Add cloze deletion tags to chunks of text in a file."
+        description=(
+            "Add cloze deletion tags to chunks of text in a file or stdin. "
+            "By default, writes the result to stdout."
+        )
     )
-    parser.add_argument("filename", help="Input filename.")
+    parser.add_argument(
+        "filename",
+        nargs="?",
+        help="Input filename (or '-' / omitted to read from stdin).",
+    )
     parser.add_argument(
         "-f",
         "--force",
         action="store_true",
         default=False,
-        help="Overwrite existing file.",
+        help="Overwrite output file if it exists.",
+    )
+    parser.add_argument(
+        "-o",
+        "--offset",
+        type=int,
+        default=0,
+        help="Offset added to cloze index (start index = 1 + offset).",
+    )
+    parser.add_argument(
+        "-O",
+        "--output",
+        help="Output filename (default: write to stdout).",
     )
 
     args = parser.parse_args()
-    add_cloze_deletion(args.filename, overwrite=args.force)
+
+    if args.filename is None or args.filename == "-":
+        input_lines = read_lines_from_stdin()
+    else:
+        input_lines = read_lines_from_file(args.filename)
+
+    result_lines = add_cloze_deletion(input_lines, index_offset=args.offset)
+
+    if args.output:
+        write_lines_to_file(args.output, result_lines, overwrite=args.force)
+    else:
+        sys.stdout.write("\n".join(result_lines))
