@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+set -u
+find "$@" -type f -printf 'A' | wc -c
