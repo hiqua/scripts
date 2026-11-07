@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+"""
+Scrape https://www.publibike.ch/en/zurich and its station map plugin
+to extract the number of available bikes and e-bikes at preferred stations.
+
+Preferred stations are loaded from `publibikes.json` in the local working
+directory, or if not found, from the XDG config directory (`$XDG_CONFIG_DIR` /
+`$XDG_CONFIG_HOME` / `~/.config`). They can also be overridden via `--stations`.
+
+Supports a `--watch` mode that periodically clears the screen, displays current
+and previous counts, and sends a desktop notification if a station had >= 5
+e-bikes previously and drops to <= 4 e-bikes.
+"""
+
+import argparse
+import datetime
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import time
+import unicodedata
+import urllib.parse
+import urllib.request
+
+PAGE_URL = "https://www.publibike.ch/en/zurich"
+CONFIG_FILENAME = "publibikes.json"
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept-Language": "en",
+}
+
+
+def load_preferred_stations() -> list[str]:
+    """
+    Load preferred stations from publibikes.json in the local folder,
+    falling back to XDG_CONFIG_DIR / XDG_CONFIG_HOME (~/.config).
+    """
+    candidates = [Path.cwd() / CONFIG_FILENAME]
+
+    xdg_config = os.environ.get("XDG_CONFIG_DIR") or os.environ.get("XDG_CONFIG_HOME")
+    if xdg_config:
+        candidates.append(Path(xdg_config) / CONFIG_FILENAME)
+        candidates.append(Path(xdg_config) / "publibikes" / CONFIG_FILENAME)
+    else:
+        default_config = Path.home() / ".config"
+        candidates.append(default_config / CONFIG_FILENAME)
+        candidates.append(default_config / "publibikes" / CONFIG_FILENAME)
+
+    for path in candidates:
+        if path.is_file():
+            with path.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                return [str(s) for s in data]
+            if isinstance(data, dict) and "stations" in data:
+                return [str(s) for s in data["stations"]]
+
+    raise FileNotFoundError(
+        f"Could not find {CONFIG_FILENAME} in local folder ({Path.cwd()}) "
+        f"or XDG config directory."
+    )
+
+
+def normalize_str(text: str) -> str:
+    """Lowercase and strip accents/umlauts for flexible station matching."""
+    nfkd = unicodedata.normalize("NFKD", text.lower())
+    return "".join(c for c in nfkd if not unicodedata.combining(c))
+
+
+def fetch_text(url: str) -> str:
+    req = urllib.request.Request(url, headers=HEADERS)
+    with urllib.request.urlopen(req, timeout=30) as response:
+        return response.read().decode("utf-8")
+
+
+def find_stations_api_url(page_url: str) -> str:
+    """Scrape the Zurich page to find the map plugin script and extract the stations API endpoint."""
+    try:
+        html = fetch_text(page_url)
+        match = re.search(r'src=["\']([^"\']*plugin_stationsmap[^"\']*\.js[^"\']*)["\']', html)
+        if match:
+            js_url = urllib.parse.urljoin(page_url, match.group(1).split("?")[0])
+            js_content = fetch_text(js_url)
+            api_match = re.search(r'url\s*:\s*["\'](https://[^"\']+/stations)["\']', js_content)
+            if api_match:
+                return api_match.group(1)
+    except Exception as exc:
+        print(f"Warning: could not scrape API URL from page ({exc}), using default.", file=sys.stderr)
+
+    return "https://rest.publibike.ch/v1/public/all/stations"
+
+
+def get_stations_info(api_url: str, queries: list[str]) -> list[dict]:
+    """Fetch station data and return matching stations for the given search queries."""
+    raw_json = fetch_text(api_url)
+    data = json.loads(raw_json)
+    results = []
+    seen_ids = set()
+
+    velospot_stations = data.get("velospot", {}).get("responseData", [])
+    publibike_stations = data.get("publibike", {}).get("stations", [])
+
+    for query in queries:
+        q = normalize_str(query)
+
+        # Check Velospot stations (ZüriVelo in Zurich uses the Velospot network)
+        for station in velospot_stations:
+            name = station.get("station_name", "")
+            address = station.get("station_address", "")
+            sid = f"velospot:{station.get('station_id', name)}"
+            if sid not in seen_ids and (q in normalize_str(name) or q in normalize_str(address)):
+                seen_ids.add(sid)
+                results.append({
+                    "id": sid,
+                    "query": query,
+                    "network": "Velospot / PubliBike Zürich",
+                    "station_name": name,
+                    "address": address,
+                    "total_bikes": int(station.get("totalBike", 0)),
+                    "ebikes": int(station.get("totalElectricalBike", 0)),
+                    "regular_bikes": int(station.get("totalNonElectricalBike", 0)),
+                })
+
+        # Check standard PubliBike stations
+        for station in publibike_stations:
+            name = station.get("name", "")
+            address = f"{station.get('address', '')}, {station.get('zip', '')} {station.get('city', '')}".strip(", ")
+            sid = f"publibike:{station.get('id', name)}"
+            if sid not in seen_ids and (q in normalize_str(name) or q in normalize_str(address)):
+                seen_ids.add(sid)
+                vehicles = station.get("vehicles", [])
+                ebikes = sum(
+                    1 for v in vehicles
+                    if "e-bike" in v.get("type", {}).get("name", "").lower()
+                    or v.get("type", {}).get("id") == 2
+                )
+                regular = len(vehicles) - ebikes
+                results.append({
+                    "id": sid,
+                    "query": query,
+                    "network": "PubliBike",
+                    "station_name": name,
+                    "address": address,
+                    "total_bikes": len(vehicles),
+                    "ebikes": ebikes,
+                    "regular_bikes": regular,
+                })
+
+    return results
+
+
+def send_notification(title: str, message: str):
+    """Send a desktop notification via notify-send (if available) and print a terminal alert."""
+    print(f"\n[ALERT] {title}: {message}\a")
+    if shutil.which("notify-send"):
+        try:
+            subprocess.run(["notify-send", "-u", "critical", title, message], check=False)
+        except Exception as exc:
+            print(f"Failed to send desktop notification: {exc}", file=sys.stderr)
+
+
+def clear_screen():
+    """Clear the terminal screen."""
+    print("\033[2J\033[H", end="", flush=True)
+
+
+def print_stations(
+    stations: list[dict],
+    previous_state: dict[str, dict] | None = None,
+    show_timestamp: bool = False,
+):
+    if show_timestamp:
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"--- Check at {now} ---")
+
+    if not stations:
+        print("No matching stations found.")
+        return
+
+    for info in stations:
+        prev = (previous_state or {}).get(info["id"])
+        prev_total = f" (prev: {prev['total_bikes']})" if prev else ""
+        prev_reg = f" (prev: {prev['regular_bikes']})" if prev else ""
+        prev_ebike = f" (prev: {prev['ebikes']})" if prev else ""
+
+        print(f"Station: {info['station_name']} ({info['address']})")
+        print(f"  Total available: {info['total_bikes']}{prev_total}")
+        print(f"  Bikes (regular): {info['regular_bikes']}{prev_reg}")
+        print(f"  E-Bikes:         {info['ebikes']}{prev_ebike}")
+        print()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Check available bikes and e-bikes at PubliBike Zurich stations."
+    )
+    parser.add_argument(
+        "-w", "--watch",
+        action="store_true",
+        help="Continuously watch stations and send a notification when e-bikes drop from >=5 to <=4.",
+    )
+    parser.add_argument(
+        "-i", "--interval",
+        type=int,
+        default=60,
+        help="Polling interval in seconds for watch mode (default: 60).",
+    )
+    parser.add_argument(
+        "-s", "--stations",
+        nargs="+",
+        default=None,
+        help="Station names or addresses to search for (overrides publibikes.json).",
+    )
+    args = parser.parse_args()
+
+    try:
+        target_stations = args.stations if args.stations else load_preferred_stations()
+    except Exception as exc:
+        print(f"Error loading station config: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    api_url = find_stations_api_url(PAGE_URL)
+
+    if not args.watch:
+        stations = get_stations_info(api_url, target_stations)
+        if not stations:
+            print("No matching stations found.", file=sys.stderr)
+            sys.exit(1)
+        print_stations(stations)
+        return
+
+    previous_state: dict[str, dict] = {}
+
+    try:
+        while True:
+            try:
+                stations = get_stations_info(api_url, target_stations)
+                clear_screen()
+                print(f"Watching stations {target_stations} every {args.interval}s (Ctrl+C to stop)...")
+                print_stations(stations, previous_state=previous_state, show_timestamp=True)
+
+                for info in stations:
+                    sid = info["id"]
+                    curr_ebikes = info["ebikes"]
+                    prev = previous_state.get(sid)
+                    prev_ebikes = prev["ebikes"] if prev else None
+
+                    # Trigger notification if there were 5 (or more) before, and now 4 or less
+                    if prev_ebikes is not None and prev_ebikes >= 5 and curr_ebikes <= 4:
+                        send_notification(
+                            f"PubliBike Alert: {info['station_name']}",
+                            f"E-Bikes dropped from {prev_ebikes} to {curr_ebikes} "
+                            f"(Regular bikes: {info['regular_bikes']}, Total: {info['total_bikes']})",
+                        )
+
+                    previous_state[sid] = info
+
+            except Exception as exc:
+                print(f"Error fetching station status: {exc}", file=sys.stderr)
+
+            time.sleep(args.interval)
+    except KeyboardInterrupt:
+        print("\nStopped watching.")
+
+
+if __name__ == "__main__":
+    main()
