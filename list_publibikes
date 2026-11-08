@@ -4,8 +4,8 @@ Scrape https://www.publibike.ch/en/zurich and its station map plugin
 to extract the number of available bikes and e-bikes at preferred stations.
 
 Preferred stations are loaded from `publibikes.json` in the local working
-directory, or if not found, from the XDG config directory (`$XDG_CONFIG_DIR` /
-`$XDG_CONFIG_HOME` / `~/.config`). They can also be overridden via `--stations`.
+directory, or if not found, from the XDG config directory (`$XDG_CONFIG_HOME` /
+`~/.config`). They can also be overridden via `--stations`.
 
 Supports a `--watch` mode that periodically clears the screen, displays current
 and previous counts, and sends a desktop notification if a station had >= 5
@@ -37,11 +37,11 @@ HEADERS = {
 def load_preferred_stations() -> list[str]:
     """
     Load preferred stations from publibikes.json in the local folder,
-    falling back to XDG_CONFIG_DIR / XDG_CONFIG_HOME (~/.config).
+    falling back to XDG_CONFIG_HOME (~/.config).
     """
     candidates = [Path.cwd() / CONFIG_FILENAME]
 
-    xdg_config = os.environ.get("XDG_CONFIG_DIR") or os.environ.get("XDG_CONFIG_HOME")
+    xdg_config = os.environ.get("XDG_CONFIG_HOME")
     if xdg_config:
         candidates.append(Path(xdg_config) / CONFIG_FILENAME)
         candidates.append(Path(xdg_config) / "publibikes" / CONFIG_FILENAME)

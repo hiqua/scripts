@@ -32,7 +32,7 @@ if [ "$reason" = "$first_reason" ] || [ "$reason" = "$second_reason" ] || [ "$re
   fi
 
   printf "%s\n" "$(date --iso-8601=minutes)" >> "$file"
-  arg="-F ${XDG_CONFIG_DIR:=$HOME/.config}/mutt/muttrc"
+  arg="-F ${XDG_CONFIG_HOME:=$HOME/.config}/mutt/muttrc"
   "$path" $arg "$@"
 fi
 

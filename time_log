@@ -3,8 +3,8 @@ set -e
 set -u
 
 # 2023-11-25 XXX: try to remove this after rebooting, should be enough to have it in .profile?
-export XDG_CONFIG_DIR="${XDG_CONFIG_DIR:=$HOME/.config}"
-export ZDOTDIR="${XDG_CONFIG_DIR:-$HOME/.config}/zsh"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:=$HOME/.config}"
+export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 
 # For USERTMP
 if [ -f "$ZDOTDIR"/10_globals.zsh ]; then
